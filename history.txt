@@ -1,0 +1,30 @@
+
+
+** ATOMIKS HISTORY FILE **
+
+
+Atomiks v1.0.4 [xx xxx 2015]
+ - Changed internal methods for storing bitmaps: dependencies to SDL_Image, zlib and libpng have been dropped,
+ - Added support for numeric keys to control the game,
+ - Code cleanup and reorganizations to ease possible ports to non-SDL platforms,
+ - Displaying the level's number in the level selection menu,
+ - Moved away from SDL to SDL2 (gained hardware acceleration in the process),
+ - ...
+
+Atomiks v1.0.3 [11 Aug 2013]
+ - Atomiks is friendlier to slow CPUs now (doesn't refresh the entire screen at every keypress anymore).
+
+Atomiks v1.0.2 [12 May 2013]
+ - Added sound (can be turned off with --nosound),
+ - Pausing the game when loosing focus,
+ - Added shadings to in-game fonts,
+ - Added scores & hiscores.
+
+Atomiks v1.0.1 [10 May 2013]
+ - Added 14 levels (now Atomiks features all 30 levels of the original Atomix game),
+ - Added short onscreen instructions about controls when starting a game for the first time,
+ - Replaced the level number in the selection menu with an actual preview of the level's molecule,
+ - Fixed a few cosmetical issues.
+
+Atomiks v1.0 [04 May 2013]
+ - First public release.
