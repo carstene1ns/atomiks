@@ -1,7 +1,7 @@
 
 
  Atomiks - A remake of the classic Atomix game for modern platforms
- Copyright (C) Mateusz Viste 2013, 2014
+ Copyright (C) Mateusz Viste 2013, 2014, 2015
 
 
  *** Introduction ***

@@ -78,7 +78,9 @@ static enum atomiks_keys pollkey(void) {
 
 
 /* waits for a keypress up to timeout seconds. returns 1 if an 'exit' action
- * is requested, 0 otherwise. */
+ * is requested, 0 otherwise.
+ * If timeout is negative, then only polling is performed. If timeout is 0,
+ * then the function waits forever. */
 static int waitforanykey(int timeout) {
   for (;;) {
     switch (inp_waitkey(timeout)) {
@@ -86,6 +88,7 @@ static int waitforanykey(int timeout) {
       case atomiks_quit:
         return(1);
       case atomiks_none:
+        return(0);
       case atomiks_gotfocus:
       case atomiks_lostfocus:
         break;
@@ -439,7 +442,7 @@ static void move_atom(struct atomixgame *game, int x_from, int y_from, int x_to,
     loosetile.x = x;
     loosetile.y = y;
     /* draw the screen */
-    if (y % 6 == 0) {
+    if (y % 3 == 0) {
       draw_game_screen(game, sprites, 1, time(NULL), &loosetile);
       tim_delay(20);
     }
@@ -450,7 +453,7 @@ static void move_atom(struct atomixgame *game, int x_from, int y_from, int x_to,
     loosetile.x = x;
     loosetile.y = y;
     /* draw the screen */
-    if (x % 6 == 0) {
+    if (x % 3 == 0) {
       draw_game_screen(game, sprites, 1, time(NULL), &loosetile);
       tim_delay(20);
     }
@@ -827,32 +830,42 @@ int main(int argc, char **argv) {
       tim_delay(1000);
       if (game->level >= last_level) { /* catch final level for congrats screen! */
         int rectcredits_x, rectcredits_y, rectscreen_x, rectscreen_y, rectcredits_w, rectcredits_h;
-        int firstloop = 1;
+        int firstloop = 1, quitcredits = 0;
         if (sounds.soundflag != 0) {
           if (snd_playmod(music_end, -1, 200) != 0) printf("snd_playmod() error!\n");
         }
-        rectscreen_x = 320 - (gra_getspritewidth(creditscreen) >> 1);
-        rectscreen_y = 72;
+        rectcredits_w = gra_getspritewidth(creditscreen);
+        rectcredits_h = 181;
+        rectscreen_x = 160 - (rectcredits_w >> 1);
+        rectscreen_y = 36;
         rectcredits_x = 0;
         rectcredits_y = 0;
-        rectcredits_w = gra_getspritewidth(creditscreen);
-        rectcredits_h = 362;
-        for (;;) {
+        while ((exitflag == 0) && (quitcredits == 0)) {
           gra_drawsprite(infoscreen, 0, 0);
           gra_drawpartsprite(creditscreen, rectcredits_x, rectcredits_y, rectcredits_w, rectcredits_h, rectscreen_x, rectscreen_y);
           gra_refresh();
           if (firstloop != 0) {
             tim_delay(5000);
-            firstloop  = 0;
+            firstloop = 0;
           }
           tim_delay(100);
           event = pollkey();
-          exitflag = waitforanykey(0);
+          switch (event) {
+            case atomiks_quit:
+              exitflag = 1;
+              break;
+            case atomiks_esc:
+            case atomiks_enter:
+              quitcredits = 1;
+              break;
+            default:
+              break;
+          }
           if (rectcredits_y + rectcredits_h < gra_getspriteheight(creditscreen)) rectcredits_y += 1;
         }
         snd_modstop(2000);
         inp_flush_events();
-        game->level -= 1;
+        game->level = 1;
         tim_delay(2000);
       }
       if (exitflag == 0) {
