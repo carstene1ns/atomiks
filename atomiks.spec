@@ -49,8 +49,3 @@ install -D atomiks %buildroot/%{_bindir}/atomiks
 %attr(755, root, root) %{_bindir}/atomiks
 
 %changelog
-* Sun May 12 2013 Mateusz Viste <mateusz@viste.fr> 1.0.2
- - Added sound (can be turned off with --nosound),
- - Pausing the game when loosing focus,
- - Added shadings to in-game fonts,
- - Added scores & hiscores.
