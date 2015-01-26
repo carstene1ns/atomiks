@@ -865,7 +865,7 @@ int main(int argc, char **argv) {
         }
         snd_modstop(2000);
         inp_flush_events();
-        game->level = 1;
+        game->level = 0;
         tim_delay(2000);
       }
       if (exitflag == 0) {
