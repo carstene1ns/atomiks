@@ -1,6 +1,6 @@
 /*
  * Input (keyboard) driver for Atomiks
- * Copyright (C) Mateusz Viste 2014
+ * Copyright (C) Mateusz Viste 2014, 2015
  */
 
 #include <time.h>

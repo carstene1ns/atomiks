@@ -1,6 +1,6 @@
 /*
  * Timer driver for Atomiks
- * Copyright (C) Mateusz Viste 2014
+ * Copyright (C) Mateusz Viste 2014, 2015
  */
 
 #include <SDL2/SDL.h>

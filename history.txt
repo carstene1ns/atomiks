@@ -4,12 +4,12 @@
 
 
 Atomiks v1.0.4 [xx xxx 2015]
- - Changed internal methods for storing bitmaps: dependencies to SDL_Image, zlib and libpng have been dropped,
+ - Changed internal methods for storing bitmaps: dependencies to SDL_Image, zlib and libpng have been dropped in favor of my own compression routines,
  - Added support for numeric keys to control the game,
  - Code cleanup and reorganizations to ease possible ports to non-SDL platforms,
  - Displaying the level's number in the level selection menu,
  - Moved away from SDL to SDL2 (gained hardware acceleration in the process),
- - redrawn the "classic" skin to be fully 320x240 compatible,
+ - redrawn all internal bitmaps to be fully 320x240 compatible,
  - replaced configuration path routines by SDL2 native calls (hence the placement of the config file changed),
  - ...
 

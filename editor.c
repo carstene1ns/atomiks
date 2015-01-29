@@ -1,6 +1,6 @@
 /*
  * This file is part of the Atomiks project
- * Copyright (C) Mateusz Viste 2013, 2014
+ * Copyright (C) Mateusz Viste 2013, 2014, 2015
  *
  * Level editor for Atomiks
  *
@@ -19,12 +19,11 @@
  */
 
 #include <stdio.h>
-#include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include "atomcore.h"
 #include "data.h"
 #include "gz.h"
-#include "scale2x.h"
 
 void savelevel(struct atomixgame *game, int level) {
   char levelfile[64];
@@ -85,17 +84,17 @@ void loadSpriteSheet(SDL_Surface **surface, int width, int height, int itemcount
   SDL_Rect rect;
   int i;
   loadGraphic(&spritesheet, memptr, memlen);
-  item = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA, width, height, 32, 0xFF000000L, 0x00FF0000L, 0x0000FF00L, 0x000000FFL);
+  item = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, 0xFF000000L, 0x00FF0000L, 0x0000FF00L, 0x000000FFL);
   for (i = 0; i < itemcount; i++) {
     rect.x = i * width;
     rect.y = 0;
     rect.w = width;
     rect.h = height;
     SDL_FillRect(item, NULL, 0);
-    SDL_SetAlpha(spritesheet, 0, spritesheet->format->alpha); /* disable alpha blending to copy pixels as-is */
+    /* SDL_SetAlpha(spritesheet, 0, spritesheet->format->alpha); */ /* disable alpha blending to copy pixels as-is */
     SDL_BlitSurface(spritesheet, &rect, item, NULL);
-    surface[i] = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA, width << 1, height << 1, 32, 0xFF000000L, 0x00FF0000L, 0x0000FF00L, 0x000000FFL);
-    scale2x(item, surface[i]);
+    surface[i] = SDL_CreateRGBSurface(SDL_SWSURFACE, width << 1, height << 1, 32, 0xFF000000L, 0x00FF0000L, 0x0000FF00L, 0x000000FFL);
+    /* scale2x(item, surface[i]); */
   }
   SDL_FreeSurface(item);
   SDL_FreeSurface(spritesheet);

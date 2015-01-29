@@ -44,7 +44,7 @@ struct spritesstruct {
   struct gra_sprite *wall[19];
   struct gra_sprite *explosion[8];
   struct gra_sprite *empty;
-  struct gra_sprite *preview;
+  struct gra_sprite *preview[2];
   struct gra_sprite *bg[3];
   struct gra_sprite *completed;
   struct gra_sprite *black;
@@ -280,7 +280,7 @@ static void drawstring3(struct spritesstruct *sprites, char *str, int x, int y) 
 }
 
 
-static void draw_game_screen(struct atomixgame *game, struct spritesstruct *sprites, int skipcursor, time_t curtime, struct loosetile_t *loosetile) {
+static void draw_game_screen(struct atomixgame *game, struct spritesstruct *sprites, int skipcursor, time_t curtime, long curtick, struct loosetile_t *loosetile) {
   int x, y;
   int rect_x, rect_y;
   struct gra_sprite *tile;
@@ -359,10 +359,10 @@ static void draw_game_screen(struct atomixgame *game, struct spritesstruct *spri
   gra_drawsprite(sprites->font2[(timeleft % 60) / 10], rect_x, rect_y);
   rect_x += gra_getspritewidth(sprites->font2[0]);
   gra_drawsprite(sprites->font2[timeleft % 10], rect_x, rect_y);
-  /* draw the preview window */
+  /* draw the preview window (alternate the sprite every 800ms) */
   rect_x = 0;
   rect_y = 240 - 71;
-  gra_drawsprite(sprites->preview, rect_x, rect_y);
+  gra_drawsprite(sprites->preview[(curtick % 1600) / 800], rect_x, rect_y);
   /* draw the molecule's description - line 1 */
   y = 0; /* compute the pixel length of the first line */
   for (x = 0; x < (int)strlen(game->level_desc_line1); x++) {
@@ -443,7 +443,7 @@ static void move_atom(struct atomixgame *game, int x_from, int y_from, int x_to,
     loosetile.y = y;
     /* draw the screen */
     if (y % 3 == 0) {
-      draw_game_screen(game, sprites, 1, time(NULL), &loosetile);
+      draw_game_screen(game, sprites, 1, time(NULL), tim_getticks(), &loosetile);
       tim_delay(20);
     }
   }
@@ -454,14 +454,14 @@ static void move_atom(struct atomixgame *game, int x_from, int y_from, int x_to,
     loosetile.y = y;
     /* draw the screen */
     if (x % 3 == 0) {
-      draw_game_screen(game, sprites, 1, time(NULL), &loosetile);
+      draw_game_screen(game, sprites, 1, time(NULL), tim_getticks(), &loosetile);
       tim_delay(20);
     }
   }
   /* place the tile at its final position */
   game->field[x_to][y_to] = loosetile.atom;
   /* make sure the screen is up to date */
-  draw_game_screen(game, sprites, 0, time(NULL), NULL);
+  draw_game_screen(game, sprites, 0, time(NULL), tim_getticks(), NULL);
   if (sndchannel != -1) snd_wavstop(sndchannel, 100);
 }
 
@@ -630,8 +630,9 @@ int main(int argc, char **argv) {
   /* load backgrounds */
   loadSpriteSheet(sprites.bg, 320, 240, 3, img_bg_bmp_gz, img_bg_bmp_gz_len);
   loadSpriteSheet(&sprites.black, 320, 240, 1, img_black_bmp_gz, img_black_bmp_gz_len);
-  /* load the preview window */
-  loadSpriteSheet(&sprites.preview, 71, 71, 1, img_preview_bmp_gz, img_preview_bmp_gz_len);
+  /* load the preview windows */
+  loadSpriteSheet(&sprites.preview[0], 71, 71, 1, img_preview_bmp_gz, img_preview_bmp_gz_len);
+  loadSpriteSheet(&sprites.preview[1], 71, 71, 1, img_preview2_bmp_gz, img_preview2_bmp_gz_len);
   /* load the 'empty space' tile */
   loadSpriteSheet(&sprites.empty, 16, 16, 1, img_empty_bmp_gz, img_empty_bmp_gz_len);
   /* load atoms sprites */
@@ -694,10 +695,11 @@ int main(int argc, char **argv) {
     int tmp;
     /* Wait for next event, while keeping the screen refreshed */
     while (exitflag == 0) {
+      long curtick = tim_getticks();
       /* keep redrawing the screen every 0.2s */
-      if (tim_getticks() > nextscreenrefresh) {
-        nextscreenrefresh = tim_getticks() + 200;
-        draw_game_screen(game, &sprites, 0, time(NULL), NULL); /* draw the game only if we have time */
+      if (curtick > nextscreenrefresh) {
+        nextscreenrefresh = curtick + 200;
+        draw_game_screen(game, &sprites, 0, time(NULL), curtick, NULL); /* draw the game only if we have time */
         /* if we are starting Atomix experience, display a short notice */
         if ((game->level == 1) && (max_auth_level == 1) && (gamejuststarted == 1)) {
           gra_drawsprite(instructions, 0, 0);
@@ -818,12 +820,12 @@ int main(int argc, char **argv) {
     if (atomix_checksolution(game) != 0) {
       time_t tmptime;
       if (game->level == max_auth_level) max_auth_level += 1;
-      draw_game_screen(game, &sprites, 1, time(NULL), NULL);
+      draw_game_screen(game, &sprites, 1, time(NULL), tim_getticks(), NULL);
       draw_anim_explosions(game, &sprites, &sounds); /* animate atoms explosion */
       tim_delay(750);
       for (tmptime = time(NULL); tmptime <= game->time_end; tmptime++) {
         game->score += 10;
-        draw_game_screen(game, &sprites, 1, tmptime, NULL);
+        draw_game_screen(game, &sprites, 1, tmptime, tim_getticks(), NULL);
         if (tmptime % 2) tim_delay(10);
       }
       if (game->score > hiscores[game->level - 1]) hiscores[game->level - 1] = game->score;

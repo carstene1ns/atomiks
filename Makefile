@@ -9,8 +9,8 @@ atomiks: atomiks.o atomcore.o cfg.o drv_gra.o drv_inp.o drv_snd.o drv_tim.o gz.o
 atomiks.o: atomiks.c data.h
 	gcc -c atomiks.c -o atomiks.o $(CFLAGS)
 
-editor: editor.c atomcore.o gz.o scale2x.o data.h
-	gcc editor.c atomcore.o gz.o scale2x.o -lSDL -o editor $(CFLAGS)
+editor: editor.c atomcore.o gz.o data.h
+	gcc editor.c atomcore.o gz.o -lSDL2 -o editor $(CFLAGS)
 
 file2c: file2c.c
 	gcc $(CFLAGS) file2c.c -o file2c

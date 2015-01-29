@@ -1,3 +1,7 @@
+/*
+ * Timer driver for Atomiks
+ * Copyright (C) Mateusz Viste 2014, 2015
+ */
 
 #ifndef drv_tim_h_sentinel
 #define drv_tim_h_sentinel

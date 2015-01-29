@@ -1,6 +1,6 @@
 /*
  * This is part of the Atomiks project.
- * Copyright (C) Mateusz Viste 2013
+ * Copyright (C) Mateusz Viste 2013, 2014, 2015
  *
  * Operates on a 2D array (playfield) of 64x64, filled with moveable and non-moveable elements.
  *

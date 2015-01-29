@@ -1,6 +1,6 @@
 /*
  * Graphic driver for Atomiks, using SDL as backend
- * Copyright (C) Mateusz Viste 2014
+ * Copyright (C) Mateusz Viste 2014, 2015
  */
 
 
