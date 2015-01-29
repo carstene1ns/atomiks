@@ -301,7 +301,6 @@ static void draw_game_screen(struct atomixgame *game, struct spritesstruct *spri
   if (loosetile != NULL) {
     /* if it's a selected atom, draw it first */
     if (loosetile->atom >= 0) {
-      draw_playfield_tile(game, loosetile->x, loosetile->y, sprites, NULL);
       gra_drawsprite(sprites->empty, loosetile->x, loosetile->y);
       gra_drawsprite(sprites->atom[loosetile->atom & field_index], loosetile->x, loosetile->y);
     }
