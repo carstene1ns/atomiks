@@ -1,4 +1,4 @@
-CFLAGS = -std=gnu89 -O0 -g -Wall -Wextra -pedantic -Wno-long-long
+CFLAGS = -std=gnu89 -O3 -Wall -Wextra -pedantic -Wno-long-long
 LIBS = -lSDL2 -lSDL2_mixer
 
 all: atomiks
