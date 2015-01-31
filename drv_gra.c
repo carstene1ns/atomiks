@@ -18,19 +18,15 @@ struct gra_sprite {
   int h;
 };
 
-/* static SDL_Surface *screen = NULL; */
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
 
 /* init the video subsystem */
-int gra_init(int width, int height, int depth, int flags, char *windowtitle) {
-  int sdl_video_flags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE; /* SDL_SWSURFACE | SDL_DOUBLEBUF; */
-
-  depth = depth; /* TODO */
+int gra_init(int width, int height, int flags, char *windowtitle) {
+  int sdl_video_flags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
 
   if (flags & GRA_FULLSCREEN) sdl_video_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
   SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-  /* if ((screen = SDL_SetVideoMode(width, height, depth, sdl_video_flags)) == NULL) return(-1); TODO */
   window = SDL_CreateWindow(windowtitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdl_video_flags);
   renderer = SDL_CreateRenderer(window, -1, 0);
   if (renderer == NULL) {
@@ -39,8 +35,10 @@ int gra_init(int width, int height, int depth, int flags, char *windowtitle) {
     return(1);
   }
 
+  SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
+  SDL_RenderSetLogicalSize(renderer, width, height);
+
   SDL_ShowCursor(SDL_DISABLE);               /* Hide the mouse cursor */
-  /* SDL_EnableKeyRepeat(100, 70); TODO */              /* Set keyboard repeat rate */
   return(0);
 }
 
@@ -144,21 +142,18 @@ void loadSpriteSheet(struct gra_sprite **sprites, int width, int height, int ite
   spritesheet = loadgzbmp_surface(memptr, memlen);
   if (spritesheet == NULL) puts("bmp is NULL!!!");
   item = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, 0xFF000000L, 0x00FF0000L, 0x0000FF00L, 0x000000FFL);
-  /* TODO check for errors (item == NULL) */
+  if (item == NULL) puts("item is NULL!!!");
   for (i = 0; i < itemcount; i++) {
     rect.x = i * width;
     rect.y = 0;
     rect.w = width;
     rect.h = height;
     SDL_FillRect(item, NULL, 0);
-    /*SDL_SetAlpha(spritesheet, 0, spritesheet->format->alpha); TODO */ /* disable alpha blending to copy pixels as-is */
     SDL_BlitSurface(spritesheet, &rect, item, NULL);
     sprites[i] = malloc(sizeof(struct gra_sprite));
     sprites[i]->ptr = SDL_CreateTextureFromSurface(renderer, item);
-    /* TODO check for error on SDL_CreateRGBSurface() */
+    if (sprites[i]->ptr == NULL) puts("sprites[i]->ptr is NULL!!!");
     SDL_QueryTexture(sprites[i]->ptr, NULL, NULL, &(sprites[i]->w), &(sprites[i]->h));
-    /* TODO remove Scale2x() call by pre-sized sprites */
-    /* scale2x(item, sprites[i]->ptr); */
   }
   SDL_FreeSurface(item);
   SDL_FreeSurface(spritesheet);

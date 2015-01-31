@@ -479,6 +479,7 @@ static int selectlevel(int curlevel, int max_auth_level, int last_level, struct 
   if (curlevel > max_auth_level) curlevel = max_auth_level;
   for (;;) {
     atomix_loadgame(game, curlevel, ATOMIX_SRC_MEM, hiscores);
+    gra_clear();
     gra_drawsprite(infoscreen, 0, 0);
     gra_drawsprite(levsel, 0, 0);
     if (max_auth_level > 1) gra_drawsprite(levsel2, 0, 0);
@@ -512,7 +513,7 @@ static int selectlevel(int curlevel, int max_auth_level, int last_level, struct 
     gra_refresh();
     inp_flush_events();
     /* Get keypress */
-    event = inp_waitkey(0);
+    event = inp_waitkey(1000);
     switch (event) {
       case atomiks_quit:
         return(-1);
@@ -599,7 +600,7 @@ int main(int argc, char **argv) {
   }
 
   /* Init SDL and set the video mode */
-  if (gra_init(640, 480, 32, videoflags, "Atomiks " PVER) != 0) {
+  if (gra_init(640, 480, videoflags, "Atomiks " PVER) != 0) {
     puts("Error: unable to init screen!");
     return(1);
   }
@@ -669,6 +670,7 @@ int main(int argc, char **argv) {
   inp_flush_events();
 
   for (x = 0; (x < 3) && (exitflag == 0); x++) {
+    gra_clear();
     gra_drawsprite(infoscreen, 0, 0);
     gra_drawsprite(intro[x], 0, 0);
     gra_refresh();

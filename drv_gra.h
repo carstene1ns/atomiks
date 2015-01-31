@@ -11,7 +11,7 @@
 struct gra_sprite;
 
 /* init the video subsystem */
-int gra_init(int width, int height, int depth, int flags, char *windowtitle);
+int gra_init(int width, int height, int flags, char *windowtitle);
 
 /* close and clean up the graphic subsystem */
 void gra_close(void);
