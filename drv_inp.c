@@ -42,15 +42,21 @@ void inp_flush_events(void) {
 }
 
 
-/* Waits for a key up to timeout seconds, and returns the pressed key.
+/* Waits for a key up to timeout miliseconds, and returns the pressed key.
  * If timeout is negative, then only polling is performed.
  * Returns atomix_none if no key pressed. */
 enum atomiks_keys inp_waitkey(int timeout) {
   SDL_Event event;
+  int evres;
   time_t timeouttime;
-  timeouttime = time(NULL) + timeout;
+  timeouttime = time(NULL) + timeout / 1000;
   for (;;) {
-    if (SDL_PollEvent(&event) != 0) {
+    if (timeout > 0) {
+      evres = SDL_WaitEventTimeout(&event, 250);
+    } else {
+      evres = SDL_PollEvent(&event);
+    }
+    if (evres != 0) {
       if (event.type == SDL_QUIT) {
           return(atomiks_quit);
         } else if (event.type == SDL_KEYDOWN) {
@@ -58,13 +64,12 @@ enum atomiks_keys inp_waitkey(int timeout) {
         } else if (event.type == SDL_WINDOWEVENT) { /* might be an indicator of lost/gained focus */
           if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST) { /* lost focus */
               return(atomiks_lostfocus);
-            } else if (event.window.event != SDL_WINDOWEVENT_FOCUS_GAINED) { /* gained focus */
+            } else if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) { /* gained focus */
               return(atomiks_gotfocus);
           }
       }
     }
     if (timeout < 0) return(atomiks_none);
     if ((timeout > 0) && (time(NULL) >= timeouttime)) return(atomiks_none);
-    tim_delay(20);
   }
 }

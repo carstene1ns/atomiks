@@ -85,7 +85,7 @@ static int waitforanykey(int timeout) {
   int nloop = 0;
   for (;;) {
     gra_refresh();
-    switch (inp_waitkey(1)) {
+    switch (inp_waitkey(1000)) {
       case atomiks_esc:
       case atomiks_quit:
         return(1);
@@ -735,7 +735,7 @@ int main(int argc, char **argv) {
         gra_drawsprite(pausedscreen, 0, 0);  /* draw paused screen */
         for (;;) {
           gra_refresh();
-          event = inp_waitkey(0);
+          event = inp_waitkey(500);
           if (event == atomiks_quit) {
               exitflag = 1;
               break;
