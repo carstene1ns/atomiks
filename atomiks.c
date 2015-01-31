@@ -82,13 +82,17 @@ static enum atomiks_keys pollkey(void) {
  * If timeout is negative, then only polling is performed. If timeout is 0,
  * then the function waits forever. */
 static int waitforanykey(int timeout) {
+  int nloop = 0;
   for (;;) {
-    switch (inp_waitkey(timeout)) {
+    gra_refresh();
+    switch (inp_waitkey(1)) {
       case atomiks_esc:
       case atomiks_quit:
         return(1);
       case atomiks_none:
-        return(0);
+        nloop++;
+        if ((nloop >= timeout) && (timeout > 0)) return(0);
+        break;
       case atomiks_gotfocus:
       case atomiks_lostfocus:
         break;
