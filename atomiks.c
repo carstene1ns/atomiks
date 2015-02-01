@@ -86,6 +86,10 @@ static int waitforanykey(int timeout) {
   for (;;) {
     gra_refresh();
     switch (inp_waitkey(1000)) {
+      case atomiks_fullscreen:
+        gra_switchfullscreen();
+        gra_refresh();
+        break;
       case atomiks_esc:
       case atomiks_quit:
         return(1);
@@ -117,8 +121,6 @@ static void draw_playfield_tile(struct atomixgame *game, int x, int y, struct sp
   }
   if (tile != NULL) {
     int xx, yy;
-    /* xx = game->offseth + (x * gra_getspritewidth(sprites->empty));
-    yy = game->offsetv + (y * gra_getspriteheight(sprites->empty)); */
     xx = game->offseth + (x * TILESIZE);
     yy = game->offsetv + (y * TILESIZE);
     gra_drawsprite(sprites->empty, xx, yy);
@@ -513,7 +515,7 @@ static int selectlevel(int curlevel, int max_auth_level, int last_level, struct 
     gra_refresh();
     inp_flush_events();
     /* Get keypress */
-    event = inp_waitkey(1000);
+    event = inp_waitkey(500);
     switch (event) {
       case atomiks_quit:
         return(-1);
@@ -526,6 +528,9 @@ static int selectlevel(int curlevel, int max_auth_level, int last_level, struct 
         break;
       case atomiks_enter:
         return(curlevel);
+        break;
+      case atomiks_fullscreen:
+        gra_switchfullscreen();
         break;
       case atomiks_esc:
         return(-1);
@@ -817,6 +822,9 @@ int main(int argc, char **argv) {
         }
         /* force the screen to refresh immediately so the user feedback is instant */
         nextscreenrefresh = 0;
+        break;
+      case atomiks_fullscreen:
+        gra_switchfullscreen();
         break;
       default:
         break;

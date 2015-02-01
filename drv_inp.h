@@ -17,6 +17,7 @@ enum atomiks_keys {
   atomiks_quit,
   atomiks_gotfocus,
   atomiks_lostfocus,
+  atomiks_fullscreen,
   atomiks_unknown
 };
 

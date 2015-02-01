@@ -20,7 +20,7 @@ void gra_close(void);
 void gra_clear(void);
 
 /* switch the application fullscreen on/off */
-void switchfullscreen(void);
+void gra_switchfullscreen(void);
 
 void gra_drawpartsprite(struct gra_sprite *sprite, int srcx, int srcy, int srcwidth, int srcheight, int dstx, int dsty);
 

@@ -55,7 +55,7 @@ void gra_clear(void) {
 }
 
 
-void switchfullscreen(void) {
+void gra_switchfullscreen(void) {
   static int fullscreenflag = 0;
   fullscreenflag ^= 1;
   if (fullscreenflag != 0) {
