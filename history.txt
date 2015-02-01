@@ -9,8 +9,9 @@ Atomiks v1.0.4 [xx xxx 2015]
  - Code cleanup and reorganizations to ease possible ports to non-SDL platforms,
  - Displaying the level's number in the level selection menu,
  - Moved away from SDL to SDL2 (gained hardware acceleration in the process),
- - redrawn all internal bitmaps to be fully 320x240 compatible,
+ - redrawn all internal bitmaps to be fully 320x200 compatible,
  - replaced configuration path routines by SDL2 native calls (hence the placement of the config file changed),
+ - implemented fullscreen switching under ALT+ENTER,
  - ...
 
 Atomiks v1.0.3 [11 Aug 2013]
