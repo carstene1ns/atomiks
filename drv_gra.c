@@ -23,9 +23,27 @@ struct gra_sprite {
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
 
+
+/* loads a gziped bmp image from memory into a SDL surface */
+static SDL_Surface *loadgzbmp_surface(unsigned char *memgz, long memgzlen) {
+  unsigned char *rawimage;
+  long rawimagelen;
+  SDL_Surface *res;
+  SDL_RWops *rwop;
+  if (isGz(memgz, memgzlen) == 0) return(NULL);
+  rawimage = ungz(memgz, memgzlen, &rawimagelen);
+  rwop = SDL_RWFromMem(rawimage, rawimagelen);
+  res = SDL_LoadBMP_RW(rwop, 0);
+  SDL_FreeRW(rwop);
+  free(rawimage);
+  return(res);
+}
+
+
 /* init the video subsystem */
-int gra_init(int width, int height, int flags, char *windowtitle) {
+int gra_init(int width, int height, int flags, char *windowtitle, unsigned char *titleicon, long titleicon_len) {
   int sdl_video_flags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
+  SDL_Surface *titleiconsurface;
 
   if (flags & GRA_FULLSCREEN) sdl_video_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
   SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
@@ -37,7 +55,19 @@ int gra_init(int width, int height, int flags, char *windowtitle) {
     return(1);
   }
 
+  /* set the window's titlebar icon */
+  if ((titleicon != NULL) && (titleicon_len > 0)) {
+    titleiconsurface = loadgzbmp_surface(titleicon, titleicon_len);
+    if (titleicon != NULL) {
+      SDL_SetWindowIcon(window, titleiconsurface);
+      SDL_FreeSurface(titleiconsurface);
+    }
+  }
+
+  /* set the scaling method */
   SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
+
+  /* set the logical screen size */
   SDL_RenderSetLogicalSize(renderer, width, height);
 
   SDL_ShowCursor(SDL_DISABLE);               /* Hide the mouse cursor */
@@ -107,21 +137,6 @@ void gra_refresh(void) {
   SDL_RenderPresent(renderer);
 }
 
-
-/* loads a gziped bmp image from memory into a SDL surface */
-static SDL_Surface *loadgzbmp_surface(unsigned char *memgz, long memgzlen) {
-  unsigned char *rawimage;
-  long rawimagelen;
-  SDL_Surface *res;
-  SDL_RWops *rwop;
-  if (isGz(memgz, memgzlen) == 0) return(NULL);
-  rawimage = ungz(memgz, memgzlen, &rawimagelen);
-  rwop = SDL_RWFromMem(rawimage, rawimagelen);
-  res = SDL_LoadBMP_RW(rwop, 0);
-  SDL_FreeRW(rwop);
-  free(rawimage);
-  return(res);
-}
 
 /* loads a gziped bmp image from memory and returns a gra_sprite */
 struct gra_sprite *loadgzbmp(unsigned char *memgz, long memgzlen) {
