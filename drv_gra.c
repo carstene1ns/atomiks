@@ -4,6 +4,8 @@
  */
 
 
+#include <stdio.h>    /* puts(), printf() */
+#include <stdlib.h>   /* malloc(), free() */
 #include <SDL2/SDL.h>
 
 #include "drv_gra.h" /* include self for control */

@@ -3,6 +3,8 @@
  * Copyright (C) Mateusz Viste 2014, 2015
  */
 
+#include <stdio.h>    /* puts(), printf() */
+#include <stdlib.h>   /* malloc(), free() */
 #include <SDL2/SDL_mixer.h>
 
 #include "drv_snd.h"  /* include self for control */
