@@ -20,12 +20,12 @@
 
 #include <stdio.h>
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 #include "atomcore.h"
 #include "data.h"
-#include "gz.h"
+#include "drv_gra.h"
 
-void savelevel(struct atomixgame *game, int level) {
+
+static void savelevel(struct atomixgame *game, int level) {
   char levelfile[64];
   FILE *fd;
   int x, y;
@@ -58,48 +58,38 @@ void savelevel(struct atomixgame *game, int level) {
 }
 
 
-/* loads a gziped bmp image from memory and returns a surface */
-static SDL_Surface *loadgzbmp(unsigned char *memgz, long memgzlen) {
-  SDL_RWops *rwop;
-  SDL_Surface *surface;
-  unsigned char *rawimage;
-  long rawimagelen;
-  if (isGz(memgz, memgzlen) == 0) return(NULL);
-  rawimage = ungz(memgz, memgzlen, &rawimagelen);
-  rwop = SDL_RWFromMem(rawimage, rawimagelen);
-  surface = SDL_LoadBMP_RW(rwop, 0);
-  SDL_FreeRW(rwop);
-  free(rawimage);
-  return(surface);
-}
-
-
-static void loadGraphic(SDL_Surface **surface, void *memptr, int memlen) {
-  *surface = loadgzbmp(memptr, memlen);
-}
-
-
-void loadSpriteSheet(SDL_Surface **surface, int width, int height, int itemcount, void *memptr, int memlen) {
-  SDL_Surface *spritesheet, *item;
-  SDL_Rect rect;
-  int i;
-  loadGraphic(&spritesheet, memptr, memlen);
-  item = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, 0xFF000000L, 0x00FF0000L, 0x0000FF00L, 0x000000FFL);
-  for (i = 0; i < itemcount; i++) {
-    rect.x = i * width;
-    rect.y = 0;
-    rect.w = width;
-    rect.h = height;
-    SDL_FillRect(item, NULL, 0);
-    /* SDL_SetAlpha(spritesheet, 0, spritesheet->format->alpha); */ /* disable alpha blending to copy pixels as-is */
-    SDL_BlitSurface(spritesheet, &rect, item, NULL);
-    surface[i] = SDL_CreateRGBSurface(SDL_SWSURFACE, width << 1, height << 1, 32, 0xFF000000L, 0x00FF0000L, 0x0000FF00L, 0x000000FFL);
-    /* scale2x(item, surface[i]); */
+static int sdlk2char(int sdlkey) {
+  switch (sdlkey) {
+    case SDLK_a: return('A');
+    case SDLK_b: return('B');
+    case SDLK_c: return('C');
+    case SDLK_d: return('D');
+    case SDLK_e: return('E');
+    case SDLK_f: return('F');
+    case SDLK_g: return('G');
+    case SDLK_h: return('H');
+    case SDLK_i: return('I');
+    case SDLK_j: return('J');
+    case SDLK_k: return('K');
+    case SDLK_l: return('L');
+    case SDLK_m: return('M');
+    case SDLK_n: return('N');
+    case SDLK_o: return('O');
+    case SDLK_p: return('P');
+    case SDLK_q: return('Q');
+    case SDLK_r: return('R');
+    case SDLK_s: return('S');
+    case SDLK_t: return('T');
+    case SDLK_u: return('U');
+    case SDLK_v: return('V');
+    case SDLK_w: return('W');
+    case SDLK_x: return('X');
+    case SDLK_y: return('Y');
+    case SDLK_z: return('Z');
+    case SDLK_PERIOD: return('.');
+    default: return(' ');
   }
-  SDL_FreeSurface(item);
-  SDL_FreeSurface(spritesheet);
 }
-
 
 
 int main(int argc, char **argv) {
@@ -109,10 +99,7 @@ int main(int argc, char **argv) {
   int selectedline = 1, selectedchar = 0;
   int lastitem = 0;
   struct atomixgame *game;
-  SDL_Surface *screen = NULL;
-  SDL_Surface *bg[3], *wall[19], *empty, *atom[64], *tile, *cursor[3], *font[16], *font3[64];
-  SDL_Rect rect;
-  SDL_Event event;
+  struct gra_sprite *bg[3], *wall[19], *empty, *atom[64], *tile, *cursor[3], *font[16], *font3[64];
   if (argc != 2) {
     puts("Usage: editor levelnum");
     return(1);
@@ -126,14 +113,7 @@ int main(int argc, char **argv) {
   }
   atomix_loadgame(game, level, ATOMIX_SRC_FILE, NULL);
 
-  SDL_Init(SDL_INIT_VIDEO);
-  if ((screen = SDL_SetVideoMode(640, 480, 32, SDL_SWSURFACE | SDL_DOUBLEBUF)) == NULL) {
-    puts("Error: unable to init screen!");
-    return(1);
-  }
-
-  /* Set keyboard repeat rate */
-  SDL_EnableKeyRepeat(100, 70);
+  gra_init(640, 480, 0, "editor", NULL, 0);
 
   /* Preload all graphics */
   /* load the 'empty space' tile */
@@ -151,50 +131,48 @@ int main(int argc, char **argv) {
   /* load generic font */
   loadSpriteSheet(&font3[0], 7, 7, 26, img_font3_bmp_gz, img_font3_bmp_gz_len);
 
-  SDL_EnableUNICODE(1);
-
   for (;;) {
-    SDL_BlitSurface(bg[game->bg], NULL, screen, NULL); /* draw the background */
+    SDL_Event event;
+    int rect_x, rect_y, rect_w, rect_h, keybuff;
+    gra_drawsprite(bg[game->bg], 0, 0);    /* draw the background */
     /* Draw the timer */
-    rect.x = 520;
-    rect.y = 20;
-    rect.w = font[0]->w;
-    rect.h = font[0]->h;
-    SDL_BlitSurface(font[game->duration / 60], NULL, screen, &rect);
-    rect.x += font[0]->w;
-    SDL_BlitSurface(font[10], NULL, screen, &rect);
-    rect.x += font[0]->w;
-    SDL_BlitSurface(font[(game->duration % 60) / 10], NULL, screen, &rect);
-    rect.x += font[0]->w;
-    SDL_BlitSurface(font[game->duration % 10], NULL, screen, &rect);
+    rect_x = 260;
+    rect_y = 20;
+    gra_drawsprite(font[game->duration / 60], rect_x, rect_y);
+    rect_x += gra_getspritewidth(font[0]);
+    gra_drawsprite(font[10], rect_x, rect_y);
+    rect_x += gra_getspritewidth(font[0]);
+    gra_drawsprite(font[(game->duration % 60) / 10], rect_x, rect_y);
+    rect_x += gra_getspritewidth(font[0]);
+    gra_drawsprite(font[game->duration % 10], rect_x, rect_y);
     /* Draw the descriptions */
-    rect.x = 420;
-    rect.y = 440;
-    rect.w = font3[0]->w;
-    rect.h = font3[0]->h;
+    rect_x = 210;
+    rect_y = 220;
+    rect_w = gra_getspritewidth(font3[0]) * 2;
+    rect_h = gra_getspriteheight(font3[0]) * 2;
     for (x = 0; x < 15; x++) {
       if ((selectedline == 1) && (selectedchar == x)) {
-          SDL_FillRect(screen, &rect, 0xFF0000L);
+          gra_drawrect(rect_x * 2, rect_y * 2, rect_w, rect_h, 255, 0, 0, 255, 1);
         } else {
-          SDL_FillRect(screen, &rect, 0x303030L);
+          gra_drawrect(rect_x * 2, rect_y * 2, rect_w, rect_h, 0x30, 0x30, 0x30, 255, 1);
       }
       if ((game->level_desc_line1[x] <= 'Z') && (game->level_desc_line1[x] >= 'A')) {
-        SDL_BlitSurface(font3[game->level_desc_line1[x] - 'A'], NULL, screen, &rect);
+        gra_drawsprite(font3[game->level_desc_line1[x] - 'A'], rect_x, rect_y);
       }
-      rect.x += font3[0]->w;
+      rect_x += gra_getspritewidth(font3[0]);
     }
-    rect.x = 420;
-    rect.y += font3[0]->h + 2;
+    rect_x = 210;
+    rect_y += gra_getspriteheight(font3[0]) + 2;
     for (x = 0; x < 15; x++) {
       if ((selectedline == 2) && (selectedchar == x)) {
-          SDL_FillRect(screen, &rect, 0xFF0000L);
+          gra_drawrect(rect_x * 2, rect_y * 2, rect_w, rect_h, 255, 0, 0, 255, 1);
         } else {
-          SDL_FillRect(screen, &rect, 0x303030L);
+          gra_drawrect(rect_x * 2, rect_y * 2, rect_w, rect_h, 0x30, 0x30, 0x30, 255, 1);
       }
       if ((game->level_desc_line2[x] <= 'Z') && (game->level_desc_line2[x] >= 'A')) {
-        SDL_BlitSurface(font3[game->level_desc_line2[x] - 'A'], NULL, screen, &rect);
+        gra_drawsprite(font3[game->level_desc_line2[x] - 'A'], rect_x, rect_y);
       }
-      rect.x += font3[0]->w;
+      rect_x += gra_getspritewidth(font3[0]);
     }
     /* Draw the playfield or solution (depends of the current mode) */
     if (viewmode == 0) { /* draw playfield */
@@ -210,12 +188,10 @@ int main(int argc, char **argv) {
                 tile = NULL;
             }
             if (tile != NULL) {
-              rect.x = 32 + (x * tile->w);
-              rect.y = 32 + (y * tile->h);
-              rect.w = tile->w;
-              rect.h = tile->h;
-              SDL_BlitSurface(empty, NULL, screen, &rect);
-              SDL_BlitSurface(tile, NULL, screen, &rect);
+              rect_x = 32 + (x * gra_getspritewidth(tile));
+              rect_y = 32 + (y * gra_getspriteheight(tile));
+              gra_drawsprite(empty, rect_x, rect_y);
+              gra_drawsprite(tile, rect_x, rect_y);
             }
           }
         }
@@ -232,30 +208,24 @@ int main(int argc, char **argv) {
                 tile = NULL;
             }
             if (tile != NULL) {
-              rect.x = 32 + (x * tile->w);
-              rect.y = 32 + (y * tile->h);
-              rect.w = tile->w;
-              rect.h = tile->h;
-              SDL_BlitSurface(empty, NULL, screen, &rect);
-              SDL_BlitSurface(tile, NULL, screen, &rect);
+              rect_x = 32 + (x * gra_getspritewidth(tile));
+              rect_y = 32 + (y * gra_getspriteheight(tile));
+              gra_drawsprite(empty, rect_x, rect_y);
+              gra_drawsprite(tile, rect_x, rect_y);
             }
           }
         }
     }
     /* draw the cursor type */
-    rect.x = 600;
-    rect.y = 260;
-    rect.w = cursor[0]->w;
-    rect.h = cursor[0]->h;
-    SDL_BlitSurface(cursor[game->cursortype], NULL, screen, &rect);
+    rect_x = 300;
+    rect_y = 130;
+    gra_drawsprite(cursor[game->cursortype], rect_x, rect_y);
     /* draw the cursor */
-    rect.x = 32 + (cursorx * cursor[0]->w);
-    rect.y = 32 + (cursory * cursor[0]->h);
-    rect.w = cursor[0]->w;
-    rect.h = cursor[0]->h;
-    SDL_BlitSurface(cursor[0], NULL, screen, &rect);
+    rect_x = 32 + (cursorx * gra_getspritewidth(cursor[0]));
+    rect_y = 32 + (cursory * gra_getspriteheight(cursor[0]));
+    gra_drawsprite(cursor[0], rect_x, rect_y);
     /* Refresh the screen */
-    SDL_Flip(screen);
+    gra_refresh();
     /* Wait for next event */
     SDL_WaitEvent(&event);
     if (event.type == SDL_QUIT) {
@@ -364,19 +334,20 @@ int main(int argc, char **argv) {
             savelevel(game, level);
             puts("SAVED");
             break;
-          default:
-            if (((event.key.keysym.unicode >= 'A') && (event.key.keysym.unicode <= 'Z')) || (event.key.keysym.unicode == '.')) {
+          default:  /* text input */
+            keybuff = sdlk2char(event.key.keysym.sym);
+            if (((keybuff >= 'A') && (keybuff <= 'Z')) || (keybuff == '.')) {
               if (selectedline == 1) {
-                  if (event.key.keysym.unicode == '.') {
+                  if (keybuff == '.') {
                       game->level_desc_line1[selectedchar] = 0;
                     } else {
-                      game->level_desc_line1[selectedchar] = event.key.keysym.unicode;
+                      game->level_desc_line1[selectedchar] = keybuff;
                   }
                 } else {
-                  if (event.key.keysym.unicode == '.') {
+                  if (keybuff == '.') {
                       game->level_desc_line2[selectedchar] = 0;
                     } else {
-                      game->level_desc_line2[selectedchar] = event.key.keysym.unicode;
+                      game->level_desc_line2[selectedchar] = keybuff;
                   }
               }
             }

@@ -39,4 +39,6 @@ int gra_getspritewidth(struct gra_sprite *sprite);
 
 int gra_getspriteheight(struct gra_sprite *sprite);
 
+int gra_drawrect(int x, int y, int width, int height, int r, int g, int b, int a, int fillflag);
+
 #endif

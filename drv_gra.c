@@ -185,3 +185,22 @@ int gra_getspritewidth(struct gra_sprite *sprite) {
 int gra_getspriteheight(struct gra_sprite *sprite) {
   return(sprite->h);
 }
+
+
+int gra_drawrect(int x, int y, int width, int height, int r, int g, int b, int a, int fillflag) {
+  SDL_Rect rect;
+  int res;
+  rect.x = x;
+  rect.y = y;
+  rect.w = width;
+  rect.h = height;
+  res = SDL_SetRenderDrawColor(renderer, r, g, b, a);
+  if (res != 0) return(-1);
+  if (fillflag == 0) {
+      res = SDL_RenderDrawRect(renderer, &rect);
+    } else {
+      res = SDL_RenderFillRect(renderer, &rect);
+  }
+  if (res != 0) return(-2);
+  return(0);
+}
