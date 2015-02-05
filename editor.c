@@ -19,6 +19,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>    /* atoi(), malloc(), free() */
 #include <SDL2/SDL.h>
 #include "atomcore.h"
 #include "data.h"

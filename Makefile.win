@@ -10,8 +10,8 @@ atomiks.exe: atomiks.o atomcore.o cfg.o drv_gra.o drv_inp.o drv_snd.o drv_tim.o 
 atomiks.o: atomiks.c data.h
 	gcc -c atomiks.c -o atomiks.o $(CFLAGS)
 
-editor: editor.c atomcore.o drv_gra.o gz.o data.h
-	gcc editor.c atomcore.o drv_gra.o gz.o $(LIBS) -o editor $(CFLAGS)
+editor.exe: editor.c atomcore.o drv_gra.o gz.o data.h
+	gcc -mwindows editor.c atomcore.o drv_gra.o gz.o $(LIB) -o editor.exe $(CFLAGS)
 
 clean:
 	del *.exe *.o
