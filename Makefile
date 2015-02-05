@@ -36,4 +36,4 @@ levels.h: lev/lev*.dat
 	for x in lev/*.dat ; do ./file2c $$x >> levels.h ; done
 
 clean:
-	rm -f editor atomiks atomiks.exe *.o
+	rm -f editor atomiks atomiks.exe file2c png2bmp zopfli *.o
