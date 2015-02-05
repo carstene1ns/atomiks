@@ -15,8 +15,8 @@ License: GPL-3.0+
 URL: http://atomiks.sourceforge.net/
 Source0: %{name}-%{version}.tar.gz
 
-BuildRequires: SDL-devel
-BuildRequires: SDL_mixer-devel
+BuildRequires: SDL2-devel
+BuildRequires: SDL2_mixer-devel
 
 %description
 Atomiks is a faithful remake of, and a tribute to, Atomix, a classic puzzle game created by Softtouch & RoSt and published in 1990 by the Thalion Software company. Atomiks is free software, and shares no code with the original Atomix game.

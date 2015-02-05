@@ -6,10 +6,10 @@ all: atomiks
 atomiks: atomiks.o atomcore.o cfg.o drv_gra.o drv_inp.o drv_snd.o drv_tim.o gz.o
 	gcc atomiks.o atomcore.o cfg.o drv_gra.o drv_inp.o drv_snd.o drv_tim.o gz.o $(LIBS) -o atomiks $(CFLAGS)
 
-atomiks.o: atomiks.c data.h
+atomiks.o: atomiks.c
 	gcc -c atomiks.c -o atomiks.o $(CFLAGS)
 
-editor: editor.c atomcore.o drv_gra.o gz.o data.h
+editor: editor.c atomcore.o drv_gra.o gz.o
 	gcc editor.c atomcore.o drv_gra.o gz.o -lSDL2 -o editor $(CFLAGS)
 
 file2c: file2c.c
