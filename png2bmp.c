@@ -1,5 +1,5 @@
 /*
- * png2bmp converts a png file into a bmp file.
+ * png2bmp converts a png file into a bmp file using SDL2.
  * author: Mateusz Viste
  */
 
