@@ -526,6 +526,13 @@ static int selectlevel(int curlevel, int max_auth_level, int last_level, struct 
       case atomiks_right:
         if ((curlevel < max_auth_level) && (curlevel < last_level)) curlevel += 1;
         break;
+      case atomiks_home:
+        curlevel = 1;
+        break;
+      case atomiks_end:
+        curlevel = max_auth_level;
+        if (curlevel > last_level) curlevel = last_level;
+        break;
       case atomiks_enter:
         return(curlevel);
         break;
@@ -545,7 +552,7 @@ static int selectlevel(int curlevel, int max_auth_level, int last_level, struct 
 static void getcfg(int *max_auth_level, int *hiscores, int last_level) {
   FILE *fd;
   int x, buff1, buff2;
-  fd = cfg_fopen("rb", "atomiks");
+  fd = cfg_fopen("rb", "Atomiks");
   for (x = 0; x < last_level; x++) {
     hiscores[x] = 0;
   }
@@ -568,7 +575,7 @@ static void getcfg(int *max_auth_level, int *hiscores, int last_level) {
 static void savecfg(int max_auth_level, int *hiscores, int last_level) {
   FILE *fd;
   int x;
-  fd = cfg_fopen("wb", "atomiks");
+  fd = cfg_fopen("wb", "Atomiks");
   if (fd == NULL) return;
   fputc(max_auth_level, fd);
   for (x = 0; x < last_level; x++) {

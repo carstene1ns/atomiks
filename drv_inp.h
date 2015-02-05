@@ -12,6 +12,8 @@ enum atomiks_keys {
   atomiks_right,
   atomiks_up,
   atomiks_down,
+  atomiks_home,
+  atomiks_end,
   atomiks_esc,
   atomiks_enter,
   atomiks_quit,

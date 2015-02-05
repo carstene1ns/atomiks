@@ -29,6 +29,12 @@ static enum atomiks_keys sdlkey2atomiks(int sdlkey) {
     case SDLK_KP_ENTER:
       if (SDL_GetModState() & KMOD_ALT) return(atomiks_fullscreen);
       return(atomiks_enter);
+    case SDLK_HOME:
+    case SDLK_KP_7:
+      return(atomiks_home);
+    case SDLK_END:
+    case SDLK_KP_1:
+      return(atomiks_end);
     case SDLK_ESCAPE:
       return(atomiks_esc);
     default:
