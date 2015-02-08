@@ -5,7 +5,7 @@
 #
 
 Name: atomiks
-Version: 1.0.4
+Version: 1.0.4.1
 Release: 1%{?dist}
 Summary: A faithful remake of, and a tribute to, Atomix, a classic puzzle game
 

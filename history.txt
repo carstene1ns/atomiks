@@ -3,6 +3,9 @@
 ** ATOMIKS HISTORY FILE **
 
 
+Atomiks v1.0.4.1 [09 Feb 2015]
+ - Fixed the reaction to a 'close window' event during level selection so Atomiks quits properly.
+
 Atomiks v1.0.4 [06 Feb 2015]
  - Changed internal methods for storing bitmaps: dependencies to SDL_Image, zlib and libpng have been dropped in favor of my own compression routines,
  - Added support for numeric keys to control the game,

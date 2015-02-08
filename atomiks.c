@@ -32,7 +32,7 @@
 #include "drv_tim.h"  /* timer driver */
 
 
-#define PVER "v1.0.4"
+#define PVER "v1.0.4.1"
 
 #define TILESIZE 16  /* the TILESIZE is the elementary unit of measurement */
                      /* in the game. */
@@ -513,7 +513,6 @@ static int selectlevel(int curlevel, int max_auth_level, int last_level, struct 
     }
     /* refresh the screen */
     gra_refresh();
-    inp_flush_events();
     /* Get keypress */
     event = inp_waitkey(500);
     switch (event) {
