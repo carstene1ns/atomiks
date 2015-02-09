@@ -37,6 +37,9 @@ static enum atomiks_keys sdlkey2atomiks(int sdlkey) {
       return(atomiks_end);
     case SDLK_ESCAPE:
       return(atomiks_esc);
+    case SDLK_LALT: /* ALT presses shall be ignored */
+    case SDLK_RALT:
+      return(atomiks_none);
     default:
       return(atomiks_unknown);
   }
@@ -55,8 +58,8 @@ void inp_flush_events(void) {
 enum atomiks_keys inp_waitkey(int timeout) {
   SDL_Event event;
   int evres;
-  time_t timeouttime;
-  timeouttime = time(NULL) + timeout / 1000;
+  long timeouttime;
+  timeouttime = tim_getticks() + timeout;
   for (;;) {
     if (timeout > 0) {
       evres = SDL_WaitEventTimeout(&event, 250);
@@ -77,6 +80,6 @@ enum atomiks_keys inp_waitkey(int timeout) {
       }
     }
     if (timeout < 0) return(atomiks_none);
-    if ((timeout > 0) && (time(NULL) >= timeouttime)) return(atomiks_none);
+    if ((timeout > 0) && (tim_getticks() >= timeouttime)) return(atomiks_none);
   }
 }

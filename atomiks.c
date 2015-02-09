@@ -77,15 +77,20 @@ static enum atomiks_keys pollkey(void) {
 }
 
 
-/* waits for a keypress up to timeout seconds. returns 1 if an 'exit' action
- * is requested, 0 otherwise.
+/* waits for a keypress up to timeout miliseconds. returns 1 if an 'exit'
+ * action is requested, 0 otherwise.
  * If timeout is negative, then only polling is performed. If timeout is 0,
- * then the function waits forever. */
-static int waitforanykey(int timeout) {
+ * then the function waits forever.
+ * The gotkey pointer, if not NULL, is set with the key that have been
+ * received. */
+static int waitforanykey(int timeout, enum atomiks_keys *gotkey) {
   int nloop = 0;
+  enum atomiks_keys keyevent;
   for (;;) {
     gra_refresh();
-    switch (inp_waitkey(1000)) {
+    keyevent = inp_waitkey(200);
+    if (gotkey != NULL) *gotkey = keyevent;
+    switch (keyevent) {
       case atomiks_fullscreen:
         gra_switchfullscreen();
         gra_refresh();
@@ -94,7 +99,7 @@ static int waitforanykey(int timeout) {
       case atomiks_quit:
         return(1);
       case atomiks_none:
-        nloop++;
+        nloop += 200;
         if ((nloop >= timeout) && (timeout > 0)) return(0);
         break;
       case atomiks_gotfocus:
@@ -670,23 +675,28 @@ int main(int argc, char **argv) {
     if (snd_playmod(music_title, -1, 0) != 0) puts("snd_playmod() error!");
   }
 
-  /* Show the title screen for a little moment (fade in) */
-  for (x = 0; x < 256; x += 15) {
-    gra_drawsprite(sprites.black, 0, 0);
-    gra_drawsprite_alpha(title, 0, 0, x);
+  /* show the title screen, refreshing it 4x a second, just in case the user
+   * messes with the display (like switching to fullscreen) */
+  for (x = 0; (x < 16) && (exitflag == 0); x++) {
+    enum atomiks_keys tempevent;
+    gra_clear();
+    gra_drawsprite(title, 0, 0);
     gra_refresh();
-    tim_delay(50);
+    exitflag = waitforanykey(250, &tempevent);
+    if ((tempevent != atomiks_none) && (tempevent != atomiks_fullscreen)) break;
   }
-  exitflag = waitforanykey(4);
   inp_flush_events();
 
   for (x = 0; (x < 3) && (exitflag == 0); x++) {
-    gra_clear();
-    gra_drawsprite(infoscreen, 0, 0);
-    gra_drawsprite(intro[x], 0, 0);
-    gra_refresh();
-    tim_delay(100);
-    exitflag = waitforanykey(0);
+    while (exitflag == 0) {
+      enum atomiks_keys tempevent;
+      gra_clear();
+      gra_drawsprite(infoscreen, 0, 0);
+      gra_drawsprite(intro[x], 0, 0);
+      gra_refresh();
+      exitflag = waitforanykey(250, &tempevent);
+      if ((tempevent != atomiks_none) && (tempevent != atomiks_fullscreen)) break;
+    }
   }
   inp_flush_events();
 
@@ -723,7 +733,7 @@ int main(int argc, char **argv) {
           tim_delay(1000);
           gamejuststarted = 0;
           inp_flush_events();
-          exitflag = waitforanykey(0);
+          exitflag = waitforanykey(0, NULL);
           game->time_end = time(NULL) + game->duration;
         }
         if (game->time_end < time(NULL)) {
@@ -731,7 +741,7 @@ int main(int argc, char **argv) {
           gra_refresh();
           tim_delay(1000);
           inp_flush_events();
-          exitflag = waitforanykey(0);
+          exitflag = waitforanykey(0, NULL);
           atomix_loadgame(game, game->level, ATOMIX_SRC_MEM, hiscores);
         }
       }
