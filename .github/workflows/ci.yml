@@ -240,14 +240,13 @@ jobs:
   # releases
 
   prerelease:
-    if: false # not much to release yet
     name: Create Pre-release
     needs:
       # all
       - dist
       - linux-appimage
       - windows-mingw-gcc
-      - web-emscripten
+      #- web-emscripten
     # allow run when some platform jobs failed, but only on master branch in main repo
     if: ${{ !cancelled() && github.ref == 'refs/heads/master' && needs.prepare.outputs.tag == '' && github.repository_owner == 'carstene1ns' }}
     runs-on: ubuntu-latest
@@ -259,11 +258,13 @@ jobs:
 
       - name: Download artifacts
         uses: actions/download-artifact@v8
+        with:
+          skip-decompress: true
 
-      - name: Zip artifacts and inspect directory
+      - name: Prepare artifacts and inspect directory
         run: |
+          unzip atomics-dist.zip
           mv atomics-dist dist
-          # TODO: zip
           tree -aL 2
 
       - name: Advance tag to recent commit
@@ -293,7 +294,7 @@ jobs:
       - name: Create CHANGELOG to add disclaimer
         run: |
           echo "This is an automated development snapshot, for testing only." > CHANGELOG.md
-          echo "Using the latest official release might be more stable." >> CHANGELOG.md
+          #echo "Using the latest official release might be more stable." >> CHANGELOG.md
           echo "" >> CHANGELOG.md
 
       - name: Fill CHANGELOG with commit info
