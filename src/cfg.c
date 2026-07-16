@@ -21,7 +21,7 @@
 
 #include <stdio.h>     /* FILE     */
 #include <stdlib.h>    /* NULL     */
-#include <SDL2/SDL.h>  /* SDL_GetPrefPath(), SDL_free() */
+#include <SDL.h>  /* SDL_GetPrefPath(), SDL_free() */
 
 /* mode is the fopen file mode to use (eg. "rb"). appname is the short name
  * of your app (eg. "atomiks"). Returns an open FD ready to use, or NULL on

@@ -44,6 +44,7 @@ target_compile_options(editor PRIVATE -Wall -Wextra)
 find_package(SDL2 REQUIRED CONFIG)
 find_package(SDL2_mixer REQUIRED CONFIG)
 find_package(SDL2_image CONFIG)
+target_link_libraries(atomcore PUBLIC SDL2::SDL2)
 target_link_libraries(atomiks PRIVATE SDL2::SDL2 SDL2_mixer::SDL2_mixer)
 target_link_libraries(editor PRIVATE SDL2::SDL2)
 
