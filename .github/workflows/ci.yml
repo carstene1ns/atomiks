@@ -90,7 +90,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update -yqq
-          sudo apt-get install -yqq cmake ninja-build patchelf libopusfile-dev
+          sudo apt-get install -yqq cmake ninja-build patchelf
 
       - uses: libsdl-org/setup-sdl@main
         id: sdl
@@ -101,6 +101,8 @@ jobs:
           version-sdl-image: 2-latest
           build-type: RelWithDebInfo
           cmake-generator: Ninja
+          cmake-arguments: -DSDL2MIXER_VENDORED=ON -DSDL2MIXER_MP3=OFF -DSDL2MIXER_FLAC=OFF \
+            -DSDL2MIXER_MIDI=OFF -DSDL2MIXER_OPUS=OFF -DSDL2MIXER_WAVPACK=OFF -DSDL2MIXER_VORBIS=OFF
 
       - name: Checkout
         uses: actions/checkout@v7
