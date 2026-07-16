@@ -73,14 +73,14 @@ jobs:
         env:
           VERSION: ${{ needs.prepare.outputs.version }}
         run: |
-          git archive -o atomics-${VERSION}.tar.gz --prefix=atomics-${VERSION}/ ${GITHUB_SHA}
-          git archive -o atomics-${VERSION}.zip --prefix=atomics-${VERSION}/ ${GITHUB_SHA}
+          git archive -o atomiks-${VERSION}.tar.gz --prefix=atomiks-${VERSION}/ ${GITHUB_SHA}
+          git archive -o atomiks-${VERSION}.zip --prefix=atomiks-${VERSION}/ ${GITHUB_SHA}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          name: atomics-dist
-          path: atomics-*.*
+          name: atomiks-dist
+          path: atomiks-*.*
 
   linux-appimage:
     name: Build (Linux x86_64, AppImage)
@@ -96,7 +96,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Build Atomics
+      - name: Build Atomiks
         run: |
           cmake -B build-release . -G Ninja -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=/usr -DAPPIMAGE=ON
@@ -118,15 +118,15 @@ jobs:
           NO_STRIP: 1
         run: |
           ./linuxdeploy --appdir AppDir \
-            --desktop-file AppDir/usr/share/applications/atomics.desktop \
-            --icon-file AppDir/usr/share/icons/hicolor/64x64/apps/atomics.png
-          ./appimagetool --no-appstream AppDir atomics-${VERSION}-linux-x86_64.AppImage
+            --desktop-file AppDir/usr/share/applications/atomiks.desktop \
+            --icon-file AppDir/usr/share/icons/hicolor/64x64/apps/atomiks.png
+          ./appimagetool --no-appstream AppDir atomiks-${VERSION}-linux-x86_64.AppImage
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          name: atomics-linux-appimage-x86_64
-          path: atomics-*.AppImage
+          name: atomiks-linux-appimage-x86_64
+          path: atomiks-*.AppImage
 
   windows-mingw-gcc:
     name: Build (Windows x86_64, MinGW, GCC)
@@ -147,7 +147,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Build Atomics
+      - name: Build Atomiks
         run: |
           cmake -B build-release . -G Ninja -DCMAKE_BUILD_TYPE=Release
           cmake --build build-release
@@ -158,13 +158,13 @@ jobs:
         run: |
           cmake --install build-release --prefix $PWD
           cp readme.txt dist/
-          mv dist atomics-${VERSION}
+          mv dist atomiks-${VERSION}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          name: atomics-windows-mingw-x86_64
-          path: atomics-*/
+          name: atomiks-windows-mingw-x86_64
+          path: atomiks-*/
 
   web-emscripten:
     if: false # disabled for now, no emscripten config in CMakeLists.txt yet
@@ -181,24 +181,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Build Atomics
+      - name: Build Atomiks
         run: |
           emcmake cmake -B build-web . -G Ninja -DCMAKE_BUILD_TYPE=Release
           cmake --build build-web
-          ls -l build-web/atomics*
+          ls -l build-web/atomiks*
 
       - name: Prepare artifact
         env:
           VERSION: ${{ needs.prepare.outputs.version }}
         run: |
-          mkdir atomics-${VERSION}
-          cp build-web/*.{wasm,js,html,data} README.md COPYING atomics-${VERSION}/
+          mkdir atomiks-${VERSION}
+          cp build-web/*.{wasm,js,html,data} README.md COPYING atomiks-${VERSION}/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          name: atomics-web
-          path: atomics-*/
+          name: atomiks-web
+          path: atomiks-*/
 
   # github pages
 
@@ -211,7 +211,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v8
         with:
-          name: atomics-web
+          name: atomiks-web
           path: web
 
       - name: Prepare site
@@ -219,9 +219,9 @@ jobs:
           mkdir -p _site
           # disable jekyll
           touch _site/.nojekyll
-          mv web/atomics-*/*.{wasm,js,html,data} _site
+          mv web/atomiks-*/*.{wasm,js,html,data} _site
           # autostart
-          ln -s atomics.html _site/index.html
+          ln -s atomiks.html _site/index.html
 
       - name: Upload artifact to GitHub pages
         uses: actions/upload-pages-artifact@v5
@@ -263,8 +263,8 @@ jobs:
 
       - name: Prepare artifacts and inspect directory
         run: |
-          unzip atomics-dist.zip
-          mv atomics-dist dist
+          unzip atomiks-dist.zip
+          mv atomiks-dist dist
           tree -aL 2
 
       - name: Advance tag to recent commit
@@ -318,7 +318,7 @@ jobs:
           bodyFile: CHANGELOG.md
           generateReleaseNotes: true
           artifacts: |
-            atomics-*.zip
+            atomiks-*.zip
             dist/*.*
 
       - name: Display information about Pre-release

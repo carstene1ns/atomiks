@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.20...4.3 FATAL_ERROR)
 
-project(atomics VERSION 1.0.5 LANGUAGES C
+project(atomiks VERSION 1.0.5 LANGUAGES C
 	DESCRIPTION "A remake of the classic Atomix game"
-	HOMEPAGE_URL "https://github.com/carstene1ns/atomics")
+	HOMEPAGE_URL "https://github.com/carstene1ns/atomiks")
 
 set(CMAKE_C_STANDARD 99)
 
@@ -19,7 +19,7 @@ add_library(atomcore OBJECT
 	src/gz.c src/gz.h) # includes src/tinfl.c
 
 # executable
-add_executable(atomics
+add_executable(atomiks
 	src/atomiks.c
 	src/cfg.c src/cfg.h
 	src/data.h
@@ -28,12 +28,12 @@ add_executable(atomics
 	src/drv_tim.c src/drv_tim.h
 	src/levels.h
 	$<TARGET_OBJECTS:atomcore>)
-target_compile_definitions(atomics PRIVATE PVER="v${PROJECT_VERSION}")
-target_compile_options(atomics PRIVATE -Wall -Wextra)
+target_compile_definitions(atomiks PRIVATE PVER="v${PROJECT_VERSION}")
+target_compile_options(atomiks PRIVATE -Wall -Wextra)
 
 if(WIN32)
-	set_target_properties(atomics PROPERTIES WIN32_EXECUTABLE TRUE)
-	target_sources(atomics PRIVATE res/atomics.rc)
+	set_target_properties(atomiks PROPERTIES WIN32_EXECUTABLE TRUE)
+	target_sources(atomiks PRIVATE res/atomiks.rc)
 endif()
 
 # editor
@@ -44,7 +44,7 @@ target_compile_options(editor PRIVATE -Wall -Wextra)
 find_package(SDL2 REQUIRED)
 find_package(SDL2_mixer REQUIRED)
 find_package(SDL2_image)
-target_link_libraries(atomics PRIVATE SDL2::SDL2 SDL2_mixer::SDL2_mixer)
+target_link_libraries(atomiks PRIVATE SDL2::SDL2 SDL2_mixer::SDL2_mixer)
 target_link_libraries(editor PRIVATE SDL2::SDL2)
 
 # tools
@@ -74,12 +74,12 @@ target_link_libraries(zopfli PRIVATE m)
 # installation
 if(WIN32)
 	# put everything in a folder
-	install(TARGETS atomics RUNTIME DESTINATION dist)
+	install(TARGETS atomiks RUNTIME DESTINATION dist)
 elseif(UNIX)
 	include(GNUInstallDirs)
-	install(TARGETS atomics RUNTIME DESTINATION /bin)
-	install(FILES res/atomics.desktop DESTINATION /share/applications)
-	install(FILES res/atomics.png DESTINATION /share/icons/hicolor/64x64/apps)
+	install(TARGETS atomiks RUNTIME DESTINATION /bin)
+	install(FILES res/atomiks.desktop DESTINATION /share/applications)
+	install(FILES res/atomiks.png DESTINATION /share/icons/hicolor/64x64/apps)
 endif()
 
 # source code formatting
