@@ -72,10 +72,15 @@ add_executable(zopfli EXCLUDE_FROM_ALL
 target_link_libraries(zopfli PRIVATE m)
 
 # installation
-include(GNUInstallDirs)
-install(TARGETS atomics RUNTIME DESTINATION /bin)
-install(FILES res/atomics.desktop DESTINATION /share/applications)
-install(FILES res/atomics.png DESTINATION /share/icons/hicolor/64x64/apps)
+if(WIN32)
+	# put everything in a folder
+	install(TARGETS atomics RUNTIME DESTINATION dist)
+elseif(UNIX)
+	include(GNUInstallDirs)
+	install(TARGETS atomics RUNTIME DESTINATION /bin)
+	install(FILES res/atomics.desktop DESTINATION /share/applications)
+	install(FILES res/atomics.png DESTINATION /share/icons/hicolor/64x64/apps)
+endif()
 
 # source code formatting
 if(NOT ASTYLE_FOUND)
