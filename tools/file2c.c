@@ -24,7 +24,7 @@ char *filename2varname(char *filename) {
     if ((result[x] >= 'A') && (result[x] <= 'Z')) continue;
     result[x] = '_';
   }
-  return(result);
+  return (result);
 }
 
 int main(int argc, char **argv) {
@@ -35,18 +35,18 @@ int main(int argc, char **argv) {
   if ((argc != 2) || (argv[1][0] == '-')) {
     puts("file2c transforms a data file into C code. Copyright (C) Mateusz Viste 2014");
     puts("Usage: file2c file.dat");
-    return(1);
+    return (1);
   }
   filename = argv[1];
   varname = filename2varname(filename);
   if (varname == NULL) {
     puts("Error: unable to parse filename.");
-    return(2);
+    return (2);
   }
   fd = fopen(filename, "rb");
   if (fd == NULL) {
     printf("Error: failed to open '%s'.\n", argv[1]);
-    return(3);
+    return (3);
   }
   printf("unsigned char %s[] = {\n", varname);
   for (;;) {
@@ -66,5 +66,5 @@ int main(int argc, char **argv) {
   printf("long %s_len = %ldl;\n", varname, bytecount);
   fclose(fd);
   free(varname);
-  return(0);
+  return (0);
 }

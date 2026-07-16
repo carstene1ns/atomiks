@@ -23,7 +23,6 @@ enum atomiks_keys {
   atomiks_unknown
 };
 
-
 /* flush input buffers */
 void inp_flush_events(void);
 

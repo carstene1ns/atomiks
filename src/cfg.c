@@ -30,10 +30,10 @@ FILE *cfg_fopen(char *mode, char *appname) {
   char *prefpath;
   char filepath[4096];
   FILE *fd;
-  if ((mode == NULL) || (appname == NULL)) return(NULL);
+  if ((mode == NULL) || (appname == NULL)) return (NULL);
   prefpath = SDL_GetPrefPath("Mateusz Viste", appname);
   snprintf(filepath, 4096, "%s/config.dat", prefpath);
   SDL_free(prefpath);
   fd = fopen(filepath, mode);
-  return(fd);
+  return (fd);
 }

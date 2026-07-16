@@ -7,7 +7,6 @@
 
 #include "drv_tim.h" /* include self for control */
 
-
 /* waits until a specific time. */
 void tim_wait_until_tick(unsigned long tick, long *overtime) {
   if (overtime != NULL) tick -= *overtime;
@@ -17,7 +16,6 @@ void tim_wait_until_tick(unsigned long tick, long *overtime) {
   if (overtime != NULL) *overtime = SDL_GetTicks() - tick;
 }
 
-
 /* waits for a number of miliseconds */
 void tim_delay(long ms) {
   unsigned long waituntil;
@@ -25,8 +23,7 @@ void tim_delay(long ms) {
   tim_wait_until_tick(waituntil, NULL);
 }
 
-
 /* returns the current ticks value */
 long tim_getticks(void) {
-  return(SDL_GetTicks());
+  return (SDL_GetTicks());
 }

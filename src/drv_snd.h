@@ -3,14 +3,12 @@
  * Copyright (C) Mateusz Viste 2014, 2015
  */
 
-
 #ifndef drv_snd_h_sentinel
 #define drv_snd_h_sentinel
 
 struct snd_wav;
 
 struct snd_mod;
-
 
 /* inits the sound system. returns 0 on success, non-zero otherwise. */
 int snd_init(void);

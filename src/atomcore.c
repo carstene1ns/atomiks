@@ -28,23 +28,22 @@
 struct atomixgame *atomix_initgame(void) {
   struct atomixgame *game;
   game = malloc(sizeof(struct atomixgame));
-  return(game);
+  return (game);
 }
-
 
 /* returns the distance that the block at position x/y would travel if pushed into 'direction'. direction is 0: up / 1: right / 2: down / 3: left */
 int atomix_getmovedistance(struct atomixgame *game, int direction) {
   int i, x, y;
   x = game->cursorx;
   y = game->cursory;
-  if ((game->field[x][y] & field_type) != field_atom) return(0); /* non-atoms don't move at all */
+  if ((game->field[x][y] & field_type) != field_atom) return (0); /* non-atoms don't move at all */
   /* UP */
   if (direction == 0) {
     y -= 1;
     for (i = y; i >= 0; i--) {
       if ((game->field[x][i] & field_type) != field_free) break;
     }
-    return(y - i);
+    return (y - i);
   }
   /* RIGHT */
   if (direction == 1) {
@@ -52,7 +51,7 @@ int atomix_getmovedistance(struct atomixgame *game, int direction) {
     for (i = x; i < 16; i++) {
       if ((game->field[i][y] & field_type) != field_free) break;
     }
-    return(i - x);
+    return (i - x);
   }
   /* DOWN */
   if (direction == 2) {
@@ -60,7 +59,7 @@ int atomix_getmovedistance(struct atomixgame *game, int direction) {
     for (i = y; i < 16; i++) {
       if ((game->field[x][i] & field_type) != field_free) break;
     }
-    return(i - y);
+    return (i - y);
   }
   /* LEFT */
   if (direction == 3) {
@@ -68,12 +67,11 @@ int atomix_getmovedistance(struct atomixgame *game, int direction) {
     for (i = x; i >= 0; i--) {
       if ((game->field[i][y] & field_type) != field_free) break;
     }
-    return(x - i);
+    return (x - i);
   }
   /* if direction is invalid, don't move */
-  return(0);
+  return (0);
 }
-
 
 void atomix_loadgame(struct atomixgame *game, int level, int source, int *hiscores) {
   char levelfile[128];
@@ -96,119 +94,120 @@ void atomix_loadgame(struct atomixgame *game, int level, int source, int *hiscor
   game->bg = 0;
   game->score = 500;
   if (hiscores != NULL) {
-      game->hiscore = hiscores[level - 1];
-    } else {
-      game->hiscore = 0;
+    game->hiscore = hiscores[level - 1];
+  } else {
+    game->hiscore = 0;
   }
   if (source == ATOMIX_SRC_FILE) {
-      sprintf(levelfile, "lev/lev%04d.dat", level);
-      fd = fopen(levelfile, "rb");
-      if (fd == NULL) return;
-      memptr = malloc(4096);
-      fread(memptr, 4096, 1, fd);
-      fclose(fd);
-    } else {
-      switch (level) {
-        case 1:
-          memptr = lev_lev0001_dat;
-          break;
-        case 2:
-          memptr = lev_lev0002_dat;
-          break;
-        case 3:
-          memptr = lev_lev0003_dat;
-          break;
-        case 4:
-          memptr = lev_lev0004_dat;
-          break;
-        case 5:
-          memptr = lev_lev0005_dat;
-          break;
-        case 6:
-          memptr = lev_lev0006_dat;
-          break;
-        case 7:
-          memptr = lev_lev0007_dat;
-          break;
-        case 8:
-          memptr = lev_lev0008_dat;
-          break;
-        case 9:
-          memptr = lev_lev0009_dat;
-          break;
-        case 10:
-          memptr = lev_lev0010_dat;
-          break;
-        case 11:
-          memptr = lev_lev0011_dat;
-          break;
-        case 12:
-          memptr = lev_lev0012_dat;
-          break;
-        case 13:
-          memptr = lev_lev0013_dat;
-          break;
-        case 14:
-          memptr = lev_lev0014_dat;
-          break;
-        case 15:
-          memptr = lev_lev0015_dat;
-          break;
-        case 16:
-          memptr = lev_lev0016_dat;
-          break;
-        case 17:
-          memptr = lev_lev0017_dat;
-          break;
-        case 18:
-          memptr = lev_lev0018_dat;
-          break;
-        case 19:
-          memptr = lev_lev0019_dat;
-          break;
-        case 20:
-          memptr = lev_lev0020_dat;
-          break;
-        case 21:
-          memptr = lev_lev0021_dat;
-          break;
-        case 22:
-          memptr = lev_lev0022_dat;
-          break;
-        case 23:
-          memptr = lev_lev0023_dat;
-          break;
-        case 24:
-          memptr = lev_lev0024_dat;
-          break;
-        case 25:
-          memptr = lev_lev0025_dat;
-          break;
-        case 26:
-          memptr = lev_lev0026_dat;
-          break;
-        case 27:
-          memptr = lev_lev0027_dat;
-          break;
-        case 28:
-          memptr = lev_lev0028_dat;
-          break;
-        case 29:
-          memptr = lev_lev0029_dat;
-          break;
-        case 30:
-          memptr = lev_lev0030_dat;
-          break;
-        default:
-          return;
-      }
+    sprintf(levelfile, "lev/lev%04d.dat", level);
+    fd = fopen(levelfile, "rb");
+    if (fd == NULL) return;
+    memptr = malloc(4096);
+    fread(memptr, 4096, 1, fd);
+    fclose(fd);
+  } else {
+    switch (level) {
+      case 1:
+        memptr = lev_lev0001_dat;
+        break;
+      case 2:
+        memptr = lev_lev0002_dat;
+        break;
+      case 3:
+        memptr = lev_lev0003_dat;
+        break;
+      case 4:
+        memptr = lev_lev0004_dat;
+        break;
+      case 5:
+        memptr = lev_lev0005_dat;
+        break;
+      case 6:
+        memptr = lev_lev0006_dat;
+        break;
+      case 7:
+        memptr = lev_lev0007_dat;
+        break;
+      case 8:
+        memptr = lev_lev0008_dat;
+        break;
+      case 9:
+        memptr = lev_lev0009_dat;
+        break;
+      case 10:
+        memptr = lev_lev0010_dat;
+        break;
+      case 11:
+        memptr = lev_lev0011_dat;
+        break;
+      case 12:
+        memptr = lev_lev0012_dat;
+        break;
+      case 13:
+        memptr = lev_lev0013_dat;
+        break;
+      case 14:
+        memptr = lev_lev0014_dat;
+        break;
+      case 15:
+        memptr = lev_lev0015_dat;
+        break;
+      case 16:
+        memptr = lev_lev0016_dat;
+        break;
+      case 17:
+        memptr = lev_lev0017_dat;
+        break;
+      case 18:
+        memptr = lev_lev0018_dat;
+        break;
+      case 19:
+        memptr = lev_lev0019_dat;
+        break;
+      case 20:
+        memptr = lev_lev0020_dat;
+        break;
+      case 21:
+        memptr = lev_lev0021_dat;
+        break;
+      case 22:
+        memptr = lev_lev0022_dat;
+        break;
+      case 23:
+        memptr = lev_lev0023_dat;
+        break;
+      case 24:
+        memptr = lev_lev0024_dat;
+        break;
+      case 25:
+        memptr = lev_lev0025_dat;
+        break;
+      case 26:
+        memptr = lev_lev0026_dat;
+        break;
+      case 27:
+        memptr = lev_lev0027_dat;
+        break;
+      case 28:
+        memptr = lev_lev0028_dat;
+        break;
+      case 29:
+        memptr = lev_lev0029_dat;
+        break;
+      case 30:
+        memptr = lev_lev0030_dat;
+        break;
+      default:
+        return;
+    }
   }
   /* read initial playfield */
   z = 0;
   for (y = 0; y < 16; y++) {
     for (x = 0; x < 16; x++) {
       game->field[x][y] = memptr[z++];
-      if (((game->field[x][y] & field_type) == field_atom) || ((game->field[x][y] & field_type) == field_free)) {
+      if (((game->field[x][y] & field_type) == field_atom)
+          || ((game->field[x][y] & field_type) == field_free)) {
         if ((game->cursorx == 0) && (game->cursory == 0)) {
           game->cursorx = x;
           game->cursory = y;
@@ -239,7 +238,8 @@ void atomix_loadgame(struct atomixgame *game, int level, int source, int *hiscor
   /* compute width/height of the playfield */
   for (x = 0; x < 16; x++) {
     for (y = 0; y < 16; y++) {
-      if (((game->field[x][y] & field_type) == field_atom) || ((game->field[x][y] & field_type) == field_wall)) { /* got a wall or an atom */
+      if (((game->field[x][y] & field_type) == field_atom)
+          || ((game->field[x][y] & field_type) == field_wall)) { /* got a wall or an atom */
         if (x + 1 > game->field_width) game->field_width = x + 1;
         if (y + 1 > game->field_height) game->field_height = y + 1;
       }
@@ -247,11 +247,12 @@ void atomix_loadgame(struct atomixgame *game, int level, int source, int *hiscor
   }
   /* adjust the vertical and horizontal offsets */
   game->offsetv = (15 - game->field_height) * 8;
-  game->offseth +=  (15 - game->field_width) * 8;
+  game->offseth += (15 - game->field_width) * 8;
   /* compute width/height of the solution */
   for (x = 0; x < 16; x++) {
     for (y = 0; y < 16; y++) {
-      if (((game->solution[x][y] & field_type) == field_atom) || ((game->solution[x][y] & field_type) == field_wall)) { /* got a wall or an atom */
+      if (((game->solution[x][y] & field_type) == field_atom)
+          || ((game->solution[x][y] & field_type) == field_wall)) { /* got a wall or an atom */
         if (x + 1 > game->solution_width) game->solution_width = x + 1;
         if (y + 1 > game->solution_height) game->solution_height = y + 1;
       }
@@ -260,18 +261,18 @@ void atomix_loadgame(struct atomixgame *game, int level, int source, int *hiscor
   if (source == ATOMIX_SRC_FILE) free(memptr);
 }
 
-
 /* compares two games - the first is the playfield and the second is the expected solution. Returns 0 if game is not done, non-zero otherwise. */
 int atomix_checksolution(struct atomixgame *game) {
   int x, y, xx, yy, win;
-  if ((game->solution_width == 0) || (game->field_width == 0)) return(0); /* no solution is possible */
+  if ((game->solution_width == 0)
+      || (game->field_width == 0)) return (0); /* no solution is possible */
   for (x = 0; x <= game->field_width - game->solution_width; x++) {
     for (y = 0; y <= game->field_height - game->solution_height; y++) {
       win = 1; /* assume we are in a win position */
       for (xx = 0; xx < game->solution_width; xx++) {
         for (yy = 0; yy < game->solution_height; yy++) {
           if ((game->solution[xx][yy] & field_type) == field_atom) { /* compare only atoms */
-            if (game->solution[xx][yy] != game->field[x+xx][y+yy]) {
+            if (game->solution[xx][yy] != game->field[x + xx][y + yy]) {
               win = 0;
               break;
             }
@@ -279,8 +280,8 @@ int atomix_checksolution(struct atomixgame *game) {
         }
         if (win == 0) break;
       }
-      if (win == 1) return(1);
+      if (win == 1) return (1);
     }
   }
-  return(0);
+  return (0);
 }

@@ -31,12 +31,8 @@
 #include "drv_snd.h"  /* sound driver */
 #include "drv_tim.h"  /* timer driver */
 
-
-#define PVER "v1.0.4.1"
-
 #define TILESIZE 16  /* the TILESIZE is the elementary unit of measurement */
-                     /* in the game. */
-
+/* in the game. */
 
 struct spritesstruct {
   struct gra_sprite *atom[49];
@@ -54,14 +50,12 @@ struct spritesstruct {
   struct gra_sprite *font3[26];
 };
 
-
 struct soundsstruct {
   struct snd_wav *selected;
   struct snd_wav *bzzz;
   struct snd_wav *explode;
   int soundflag;
 };
-
 
 struct loosetile_t {
   int atom;
@@ -71,11 +65,9 @@ struct loosetile_t {
   int origpos_y;
 };
 
-
 static enum atomiks_keys pollkey(void) {
-  return(inp_waitkey(-1));
+  return (inp_waitkey(-1));
 }
-
 
 /* waits for a keypress up to timeout miliseconds. returns 1 if an 'exit'
  * action is requested, 0 otherwise.
@@ -97,31 +89,31 @@ static int waitforanykey(int timeout, enum atomiks_keys *gotkey) {
         break;
       case atomiks_esc:
       case atomiks_quit:
-        return(1);
+        return (1);
       case atomiks_none:
         nloop += 200;
-        if ((nloop >= timeout) && (timeout > 0)) return(0);
+        if ((nloop >= timeout) && (timeout > 0)) return (0);
         break;
       case atomiks_gotfocus:
       case atomiks_lostfocus:
         break;
       default:
-        return(0);
+        return (0);
     }
   }
 }
 
-
-static void draw_playfield_tile(struct atomixgame *game, int x, int y, struct spritesstruct *sprites, struct gra_sprite *tile) {
+static void draw_playfield_tile(struct atomixgame *game, int x, int y,
+                                struct spritesstruct *sprites, struct gra_sprite *tile) {
   if (tile == NULL) {
     if ((game->field[x][y] & field_type) == field_atom) {
-        tile = sprites->atom[game->field[x][y] & field_index];
-      } else if ((game->field[x][y] & field_type) == field_wall) {
-        tile = sprites->wall[game->field[x][y] & field_index];
-      } else if ((game->field[x][y] & field_type) == field_free) {
-        tile = sprites->empty;
-      } else { /* empty space */
-        tile = NULL;
+      tile = sprites->atom[game->field[x][y] & field_index];
+    } else if ((game->field[x][y] & field_type) == field_wall) {
+      tile = sprites->wall[game->field[x][y] & field_index];
+    } else if ((game->field[x][y] & field_type) == field_free) {
+      tile = sprites->empty;
+    } else { /* empty space */
+      tile = NULL;
     }
   }
   if (tile != NULL) {
@@ -133,8 +125,8 @@ static void draw_playfield_tile(struct atomixgame *game, int x, int y, struct sp
   }
 }
 
-
-static void draw_anim_explosions(struct atomixgame *game, struct spritesstruct *sprites, struct soundsstruct *sounds) {
+static void draw_anim_explosions(struct atomixgame *game, struct spritesstruct *sprites,
+                                 struct soundsstruct *sounds) {
   int listlen = 0;
   int listx[64];
   int listy[64];
@@ -180,7 +172,6 @@ static void draw_anim_explosions(struct atomixgame *game, struct spritesstruct *
   }
 }
 
-
 /* moves the cursor up by one place up */
 static void move_cursor_up(struct atomixgame *game, struct spritesstruct *sprites) {
   int y, x, y1, y2;
@@ -203,7 +194,6 @@ static void move_cursor_up(struct atomixgame *game, struct spritesstruct *sprite
   }
   game->cursory -= 1;
 }
-
 
 /* moves the cursor by one place right */
 static void move_cursor_right(struct atomixgame *game, struct spritesstruct *sprites) {
@@ -272,15 +262,13 @@ static void move_cursor_left(struct atomixgame *game, struct spritesstruct *spri
   game->cursorx -= 1;
 }
 
-
 /* reads an ascii char and returns the index of the related glyph within font1 (A..Z0..9) */
 static int ascii2font1(char c) {
-  if ((c >= 'A') && (c <= 'Z')) return(c - 'A');
-  if ((c >= 'a') && (c <= 'z')) return(c - 'a');
-  if ((c >= '0') && (c <= '9')) return(26 + (c - '0'));
-  return(36);
+  if ((c >= 'A') && (c <= 'Z')) return (c - 'A');
+  if ((c >= 'a') && (c <= 'z')) return (c - 'a');
+  if ((c >= '0') && (c <= '9')) return (26 + (c - '0'));
+  return (36);
 }
-
 
 static void drawstring3(struct spritesstruct *sprites, char *str, int x, int y) {
   char *curpos;
@@ -290,13 +278,13 @@ static void drawstring3(struct spritesstruct *sprites, char *str, int x, int y) 
   }
 }
 
-
-static void draw_game_screen(struct atomixgame *game, struct spritesstruct *sprites, int skipcursor, time_t curtime, long curtick, struct loosetile_t *loosetile) {
+static void draw_game_screen(struct atomixgame *game, struct spritesstruct *sprites, int skipcursor,
+                             time_t curtime, long curtick, struct loosetile_t *loosetile) {
   int x, y;
   int rect_x, rect_y;
   struct gra_sprite *tile;
   unsigned int timeleft = 0;
-  unsigned char font1_width[] = {5,5,4,5,4,4,5,5,2,4,4,4,6,5,5,5,5,5,5,4,5,4,6,4,5,4,5,4,4,4,4,4,5,4,5,5}; /* provides the width of every single glyph in the font1 set */
+  unsigned char font1_width[] = {5, 5, 4, 5, 4, 4, 5, 5, 2, 4, 4, 4, 6, 5, 5, 5, 5, 5, 5, 4, 5, 4, 6, 4, 5, 4, 5, 4, 4, 4, 4, 4, 5, 4, 5, 5}; /* provides the width of every single glyph in the font1 set */
   char tmpstring[16];
   gra_clear();  /* first clear out the screen */
   gra_drawsprite(sprites->bg[game->bg], 0, 0);  /* draw background */
@@ -403,7 +391,8 @@ static void draw_game_screen(struct atomixgame *game, struct spritesstruct *spri
         tile = sprites->satom[game->solution[x][y] & field_index];
         preview_offset_x = ((8 - game->solution_width) * (TILESIZE / 2)) / 2;
         preview_offset_y = ((7 - game->solution_height) * (TILESIZE / 2)) / 2;
-        if (game->level_desc_line2[0] == 0) { /* if the molecule's name uses two lines, adapt the offset of the preview */
+        if (game->level_desc_line2[0] ==
+            0) { /* if the molecule's name uses two lines, adapt the offset of the preview */
           preview_offset_y -= 8;
         }
         rect_x = 4 + preview_offset_x + (x * TILESIZE / 2);
@@ -416,30 +405,30 @@ static void draw_game_screen(struct atomixgame *game, struct spritesstruct *spri
   gra_refresh();
 }
 
-
 /* moves an atom from one position of the field to another */
-static void move_atom(struct atomixgame *game, int x_from, int y_from, int x_to, int y_to, struct soundsstruct *sounds, struct spritesstruct *sprites) {
+static void move_atom(struct atomixgame *game, int x_from, int y_from, int x_to, int y_to,
+                      struct soundsstruct *sounds, struct spritesstruct *sprites) {
   int x, y, kierunekx = 0, kieruneky = 0, sndchannel;
   /* int rect_x, rect_y; */
   struct loosetile_t loosetile;
   if (x_from > x_to) {
-      kierunekx = -1;
-    } else if (x_from < x_to) {
-      kierunekx = 1;
-    } else if (y_from > y_to) {
-      kieruneky = -1;
-    } else if (y_from < y_to) {
-      kieruneky = 1;
-    } else {  /* we're not moving at all! */
-      return;
+    kierunekx = -1;
+  } else if (x_from < x_to) {
+    kierunekx = 1;
+  } else if (y_from > y_to) {
+    kieruneky = -1;
+  } else if (y_from < y_to) {
+    kieruneky = 1;
+  } else {  /* we're not moving at all! */
+    return;
   }
   x = game->offseth + (x_from * TILESIZE);
   y = game->offsetv + (y_from * TILESIZE);
   /* rect_x = 0; */
   if (sounds->soundflag != 0) {
-      sndchannel = snd_playwav(sounds->bzzz, -1);
-    } else {
-      sndchannel = -1;
+    sndchannel = snd_playwav(sounds->bzzz, -1);
+  } else {
+    sndchannel = -1;
   }
   /* move the moving tile from the playfield into a loosetile struct */
   loosetile.origpos_x = x;
@@ -475,9 +464,10 @@ static void move_atom(struct atomixgame *game, int x_from, int y_from, int x_to,
   if (sndchannel != -1) snd_wavstop(sndchannel, 100);
 }
 
-
 /* displays the level selection screen. returns the selected level to load, or -1 on QUIT request */
-static int selectlevel(int curlevel, int max_auth_level, int last_level, struct gra_sprite *infoscreen, struct gra_sprite *levsel, struct gra_sprite *levsel2, struct spritesstruct *sprites, int *hiscores) {
+static int selectlevel(int curlevel, int max_auth_level, int last_level,
+                       struct gra_sprite *infoscreen, struct gra_sprite *levsel, struct gra_sprite *levsel2,
+                       struct spritesstruct *sprites, int *hiscores) {
   enum atomiks_keys event;
   struct gra_sprite *tile;
   int x, y;
@@ -514,7 +504,8 @@ static int selectlevel(int curlevel, int max_auth_level, int last_level, struct 
 
     /* draw 'completed' over the level number, if completed indeed */
     if (curlevel < max_auth_level) {
-      gra_drawsprite(sprites->completed, 10 + (320 / 2) - (gra_getspritewidth(sprites->completed) / 2), 110);
+      gra_drawsprite(sprites->completed, 10 + (320 / 2) - (gra_getspritewidth(sprites->completed) / 2),
+                     110);
     }
     /* refresh the screen */
     gra_refresh();
@@ -522,7 +513,7 @@ static int selectlevel(int curlevel, int max_auth_level, int last_level, struct 
     event = inp_waitkey(500);
     switch (event) {
       case atomiks_quit:
-        return(-1);
+        return (-1);
         break;
       case atomiks_left:
         if (curlevel > 1) curlevel -= 1;
@@ -538,20 +529,19 @@ static int selectlevel(int curlevel, int max_auth_level, int last_level, struct 
         if (curlevel > last_level) curlevel = last_level;
         break;
       case atomiks_enter:
-        return(curlevel);
+        return (curlevel);
         break;
       case atomiks_fullscreen:
         gra_switchfullscreen();
         break;
       case atomiks_esc:
-        return(-1);
+        return (-1);
         break;
       default:
         break;
     }
   }
 }
-
 
 static void getcfg(int *max_auth_level, int *hiscores, int last_level) {
   FILE *fd;
@@ -561,20 +551,19 @@ static void getcfg(int *max_auth_level, int *hiscores, int last_level) {
     hiscores[x] = 0;
   }
   if (fd == NULL) {
-      *max_auth_level = 1;
-    } else {
-      *max_auth_level = fgetc(fd);
-      if (*max_auth_level < 1) *max_auth_level = 1;
-      for (x = 0; x < last_level; x++) {
-        buff1 = fgetc(fd);
-        buff2 = fgetc(fd);
-        if ((buff1 < 0) || (buff2 < 0)) break;
-        hiscores[x] = (buff1 << 8) | buff2;
-      }
-      fclose(fd);
+    *max_auth_level = 1;
+  } else {
+    *max_auth_level = fgetc(fd);
+    if (*max_auth_level < 1) *max_auth_level = 1;
+    for (x = 0; x < last_level; x++) {
+      buff1 = fgetc(fd);
+      buff2 = fgetc(fd);
+      if ((buff1 < 0) || (buff2 < 0)) break;
+      hiscores[x] = (buff1 << 8) | buff2;
+    }
+    fclose(fd);
   }
 }
-
 
 static void savecfg(int max_auth_level, int *hiscores, int last_level) {
   FILE *fd;
@@ -589,13 +578,12 @@ static void savecfg(int max_auth_level, int *hiscores, int last_level) {
   fclose(fd);
 }
 
-
-
 #define last_level 30
 
 int main(int argc, char **argv) {
   struct spritesstruct sprites;
-  struct gra_sprite *title, *infoscreen, *instructions, *intro[3], *levsel, *levsel2, *timeoutscreen, *pausedscreen, *creditscreen;
+  struct gra_sprite *title, *infoscreen, *instructions, *intro[3], *levsel, *levsel2, *timeoutscreen,
+           *pausedscreen, *creditscreen;
   enum atomiks_keys event;
   struct atomixgame *game;
   int x, exitflag = 0, gamejuststarted;
@@ -616,9 +604,10 @@ int main(int argc, char **argv) {
   }
 
   /* Init SDL and set the video mode */
-  if (gra_init(640, 480, videoflags, "Atomiks " PVER, img_tinyicon_bmp_gz, img_tinyicon_bmp_gz_len) != 0) {
+  if (gra_init(640, 480, videoflags, "Atomiks " PVER, img_tinyicon_bmp_gz,
+               img_tinyicon_bmp_gz_len) != 0) {
     puts("Error: unable to init screen!");
-    return(1);
+    return (1);
   }
 
   /* init the audio system */
@@ -703,7 +692,8 @@ int main(int argc, char **argv) {
   /* Init the game and start on level 1 */
   game = atomix_initgame();
   if (exitflag == 0) {
-    if ((game->level = selectlevel(1, max_auth_level, last_level, infoscreen, levsel, levsel2, &sprites, hiscores)) < 1) {
+    if ((game->level = selectlevel(1, max_auth_level, last_level, infoscreen, levsel, levsel2, &sprites,
+                                   hiscores)) < 1) {
       exitflag = 1;
       game->level = 1;
     }
@@ -725,7 +715,8 @@ int main(int argc, char **argv) {
       /* keep redrawing the screen every 0.2s */
       if (curtick > nextscreenrefresh) {
         nextscreenrefresh = curtick + 200;
-        draw_game_screen(game, &sprites, 0, time(NULL), curtick, NULL); /* draw the game only if we have time */
+        draw_game_screen(game, &sprites, 0, time(NULL), curtick,
+                         NULL); /* draw the game only if we have time */
         /* if we are starting Atomix experience, display a short notice */
         if ((game->level == 1) && (max_auth_level == 1) && (gamejuststarted == 1)) {
           gra_drawsprite(instructions, 0, 0);
@@ -760,80 +751,81 @@ int main(int argc, char **argv) {
           gra_refresh();
           event = inp_waitkey(500);
           if (event == atomiks_quit) {
-              exitflag = 1;
-              break;
-            } else if (event == atomiks_gotfocus) {
-              game->time_end += (time(NULL) - pausedtime);
-              break;
+            exitflag = 1;
+            break;
+          } else if (event == atomiks_gotfocus) {
+            game->time_end += (time(NULL) - pausedtime);
+            break;
           }
         }
         break;
       case atomiks_left:
         if (game->cursorstate == 0) {
-            move_cursor_left(game, &sprites);
-          } else {
-            tmp = atomix_getmovedistance(game, 3);
-            if (tmp != 0) {
-              if (game->score >= 5) game->score -= 5;
-              game->cursorx -= tmp;
-              move_atom(game, cursorx_backup, cursory_backup, game->cursorx, game->cursory, &sounds, &sprites);
-            }
+          move_cursor_left(game, &sprites);
+        } else {
+          tmp = atomix_getmovedistance(game, 3);
+          if (tmp != 0) {
+            if (game->score >= 5) game->score -= 5;
+            game->cursorx -= tmp;
+            move_atom(game, cursorx_backup, cursory_backup, game->cursorx, game->cursory, &sounds, &sprites);
+          }
         }
         break;
       case atomiks_right:
         if (game->cursorstate == 0) {
-            move_cursor_right(game, &sprites);
-          } else {
-            tmp = atomix_getmovedistance(game, 1);
-            if (tmp != 0) {
-              if (game->score >= 5) game->score -= 5;
-              game->cursorx += tmp;
-              move_atom(game, cursorx_backup, cursory_backup, game->cursorx, game->cursory, &sounds, &sprites);
-            }
+          move_cursor_right(game, &sprites);
+        } else {
+          tmp = atomix_getmovedistance(game, 1);
+          if (tmp != 0) {
+            if (game->score >= 5) game->score -= 5;
+            game->cursorx += tmp;
+            move_atom(game, cursorx_backup, cursory_backup, game->cursorx, game->cursory, &sounds, &sprites);
+          }
         }
         break;
       case atomiks_up:
         if (game->cursorstate == 0) {
-            move_cursor_up(game, &sprites);
-          } else {
-            tmp = atomix_getmovedistance(game, 0);
-            if (tmp != 0) {
-              if (game->score >= 5) game->score -= 5;
-              game->cursory -= tmp;
-              move_atom(game, cursorx_backup, cursory_backup, game->cursorx, game->cursory, &sounds, &sprites);
-            }
+          move_cursor_up(game, &sprites);
+        } else {
+          tmp = atomix_getmovedistance(game, 0);
+          if (tmp != 0) {
+            if (game->score >= 5) game->score -= 5;
+            game->cursory -= tmp;
+            move_atom(game, cursorx_backup, cursory_backup, game->cursorx, game->cursory, &sounds, &sprites);
+          }
         }
         break;
       case atomiks_down:
         if (game->cursorstate == 0) {
-            move_cursor_down(game, &sprites);
-          } else {
-            tmp = atomix_getmovedistance(game, 2);
-            if (tmp != 0) {
-              if (game->score >= 5) game->score -= 5;
-              game->cursory += tmp;
-              move_atom(game, cursorx_backup, cursory_backup, game->cursorx, game->cursory, &sounds, &sprites);
-            }
+          move_cursor_down(game, &sprites);
+        } else {
+          tmp = atomix_getmovedistance(game, 2);
+          if (tmp != 0) {
+            if (game->score >= 5) game->score -= 5;
+            game->cursory += tmp;
+            move_atom(game, cursorx_backup, cursory_backup, game->cursorx, game->cursory, &sounds, &sprites);
+          }
         }
         break;
       case atomiks_esc:
         if (sounds.soundflag != 0) {
           if (snd_playmod(music_title, -1, 0) != 0) printf("snd_playmod() error!\n");
         }
-        if ((game->level = selectlevel(game->level, max_auth_level, last_level, infoscreen, levsel, levsel2, &sprites, hiscores)) < 0) {
-            exitflag = 1;
-          } else {
-            snd_modstop(2000);
-            atomix_loadgame(game, game->level, ATOMIX_SRC_MEM, hiscores);
+        if ((game->level = selectlevel(game->level, max_auth_level, last_level, infoscreen, levsel, levsel2,
+                                       &sprites, hiscores)) < 0) {
+          exitflag = 1;
+        } else {
+          snd_modstop(2000);
+          atomix_loadgame(game, game->level, ATOMIX_SRC_MEM, hiscores);
         }
         break;
       case atomiks_enter:
         if ((game->field[game->cursorx][game->cursory] & field_type) == field_atom) {
           if (game->cursorstate == 0) {
-              game->cursorstate = game->cursortype;
-              if (sounds.soundflag != 0) snd_playwav(sounds.selected, 0);
-            } else {
-              game->cursorstate = 0;
+            game->cursorstate = game->cursortype;
+            if (sounds.soundflag != 0) snd_playwav(sounds.selected, 0);
+          } else {
+            game->cursorstate = 0;
           }
         }
         /* force the screen to refresh immediately so the user feedback is instant */
@@ -873,7 +865,8 @@ int main(int argc, char **argv) {
         rectcredits_y = 0;
         while ((exitflag == 0) && (quitcredits == 0)) {
           gra_drawsprite(infoscreen, 0, 0);
-          gra_drawpartsprite(creditscreen, rectcredits_x, rectcredits_y, rectcredits_w, rectcredits_h, rectscreen_x, rectscreen_y);
+          gra_drawpartsprite(creditscreen, rectcredits_x, rectcredits_y, rectcredits_w, rectcredits_h,
+                             rectscreen_x, rectscreen_y);
           gra_refresh();
           if (firstloop != 0) {
             tim_delay(5000);
@@ -904,7 +897,8 @@ int main(int argc, char **argv) {
           if (snd_playmod(music_title, -1, 0) != 0) printf("snd_playmod() error!\n");
         }
         inp_flush_events();
-        if ((game->level = selectlevel(game->level + 1, max_auth_level, last_level, infoscreen, levsel, levsel2, &sprites, hiscores)) < 0) {
+        if ((game->level = selectlevel(game->level + 1, max_auth_level, last_level, infoscreen, levsel,
+                                       levsel2, &sprites, hiscores)) < 0) {
           exitflag = 1;
           game->level = 1;
         }
@@ -942,5 +936,5 @@ int main(int argc, char **argv) {
   snd_wavfree(sounds.selected);
   snd_close();  /* this one takes a long time (~2s) when using the PulseAudio driver... This is a known bug, there's not much I can do about this */
   gra_close();
-  return(0);
+  return (0);
 }
