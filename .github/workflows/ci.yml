@@ -90,8 +90,15 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update -yqq
-          sudo apt-get install -yqq cmake ninja-build \
-            libsdl2-dev libsdl2-mixer-dev libsdl2-image-dev patchelf
+          sudo apt-get install -yqq cmake ninja-build patchelf
+
+      - uses: libsdl-org/setup-sdl@main
+        id: sdl
+        with:
+          install-linux-dependencies: true
+          version: 2-latest
+          version-sdl-mixer: 2-latest
+          version-sdl-image: 2-latest
 
       - name: Checkout
         uses: actions/checkout@v7

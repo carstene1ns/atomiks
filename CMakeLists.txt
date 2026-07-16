@@ -37,13 +37,13 @@ if(WIN32)
 endif()
 
 # editor
-add_executable(editor src/editor.c $<TARGET_OBJECTS:atomcore>)
+add_executable(editor EXCLUDE_FROM_ALL src/editor.c $<TARGET_OBJECTS:atomcore>)
 target_compile_options(editor PRIVATE -Wall -Wextra)
 
 # external libs
-find_package(SDL2 REQUIRED)
-find_package(SDL2_mixer REQUIRED)
-find_package(SDL2_image)
+find_package(SDL2 REQUIRED CONFIG)
+find_package(SDL2_mixer REQUIRED CONFIG)
+find_package(SDL2_image CONFIG)
 target_link_libraries(atomiks PRIVATE SDL2::SDL2 SDL2_mixer::SDL2_mixer)
 target_link_libraries(editor PRIVATE SDL2::SDL2)
 
