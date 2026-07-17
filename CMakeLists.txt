@@ -76,11 +76,33 @@ target_link_libraries(zopfli PRIVATE m)
 if(WIN32)
 	# put everything in a folder
 	install(TARGETS atomiks RUNTIME DESTINATION dist)
+	install(CODE [[
+		file(GET_RUNTIME_DEPENDENCIES
+			EXECUTABLES
+				$<TARGET_FILE:atomiks>
+			RESOLVED_DEPENDENCIES_VAR _r_deps
+			UNRESOLVED_DEPENDENCIES_VAR _u_deps
+			DIRECTORIES
+				$<TARGET_FILE_DIR:SDL2::SDL2>
+		)
+		foreach(_file ${_r_deps})
+			string(TOLOWER ${_file} _file_lower)
+			if(NOT ${_file_lower} MATCHES "c:[\\/]windows[\\/]system32.*")
+				file(INSTALL
+					DESTINATION dist
+					TYPE SHARED_LIBRARY
+					FOLLOW_SYMLINK_CHAIN
+					FILES "${_file}"
+				)
+			endif()
+		endforeach()
+		#message("UNRESOLVED_DEPENDENCIES_VAR: ${_u_deps}")
+		]])
 elseif(UNIX)
 	include(GNUInstallDirs)
-	install(TARGETS atomiks RUNTIME DESTINATION /bin)
-	install(FILES res/atomiks.desktop DESTINATION /share/applications)
-	install(FILES res/atomiks.png DESTINATION /share/icons/hicolor/64x64/apps)
+	install(TARGETS atomiks RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+	install(FILES res/atomiks.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+	install(FILES res/atomiks.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/64x64/apps)
 endif()
 
 # source code formatting
