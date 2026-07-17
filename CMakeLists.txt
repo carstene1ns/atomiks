@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.20...4.3 FATAL_ERROR)
 
-project(atomics VERSION 1.0.5 LANGUAGES C
+project(atomiks VERSION 1.0.5 LANGUAGES C
 	DESCRIPTION "A remake of the classic Atomix game"
-	HOMEPAGE_URL "https://github.com/carstene1ns/atomics")
+	HOMEPAGE_URL "https://github.com/carstene1ns/atomiks")
 
 set(CMAKE_C_STANDARD 99)
 
@@ -19,7 +19,7 @@ add_library(atomcore OBJECT
 	src/gz.c src/gz.h) # includes src/tinfl.c
 
 # executable
-add_executable(atomics
+add_executable(atomiks
 	src/atomiks.c
 	src/cfg.c src/cfg.h
 	src/data.h
@@ -28,23 +28,24 @@ add_executable(atomics
 	src/drv_tim.c src/drv_tim.h
 	src/levels.h
 	$<TARGET_OBJECTS:atomcore>)
-target_compile_definitions(atomics PRIVATE PVER="v${PROJECT_VERSION}")
-target_compile_options(atomics PRIVATE -Wall -Wextra)
+target_compile_definitions(atomiks PRIVATE PVER="v${PROJECT_VERSION}")
+target_compile_options(atomiks PRIVATE -Wall -Wextra)
 
 if(WIN32)
-	set_target_properties(atomics PROPERTIES WIN32_EXECUTABLE TRUE)
-	target_sources(atomics PRIVATE res/atomics.rc)
+	set_target_properties(atomiks PROPERTIES WIN32_EXECUTABLE TRUE)
+	target_sources(atomiks PRIVATE res/atomiks.rc)
 endif()
 
 # editor
-add_executable(editor src/editor.c $<TARGET_OBJECTS:atomcore>)
+add_executable(editor EXCLUDE_FROM_ALL src/editor.c $<TARGET_OBJECTS:atomcore>)
 target_compile_options(editor PRIVATE -Wall -Wextra)
 
 # external libs
-find_package(SDL2 REQUIRED)
-find_package(SDL2_mixer REQUIRED)
-find_package(SDL2_image)
-target_link_libraries(atomics PRIVATE SDL2::SDL2 SDL2_mixer::SDL2_mixer)
+find_package(SDL2 REQUIRED CONFIG)
+find_package(SDL2_mixer REQUIRED CONFIG)
+find_package(SDL2_image CONFIG)
+target_link_libraries(atomcore PUBLIC SDL2::SDL2)
+target_link_libraries(atomiks PRIVATE SDL2::SDL2 SDL2_mixer::SDL2_mixer)
 target_link_libraries(editor PRIVATE SDL2::SDL2)
 
 # tools
@@ -72,10 +73,39 @@ add_executable(zopfli EXCLUDE_FROM_ALL
 target_link_libraries(zopfli PRIVATE m)
 
 # installation
-include(GNUInstallDirs)
-install(TARGETS atomics RUNTIME DESTINATION /bin)
-install(FILES res/atomics.desktop DESTINATION /share/applications)
-install(FILES res/atomics.png DESTINATION /share/icons/hicolor/64x64/apps)
+if(WIN32)
+	# put everything in a folder
+	install(TARGETS atomiks RUNTIME DESTINATION dist)
+	install(CODE [[
+		cmake_policy(SET CMP0207 OLD) # slash matching (since 4.3)
+		file(GET_RUNTIME_DEPENDENCIES
+			EXECUTABLES
+				$<TARGET_FILE:atomiks>
+			RESOLVED_DEPENDENCIES_VAR _r_deps
+			UNRESOLVED_DEPENDENCIES_VAR _u_deps
+			DIRECTORIES
+				$<TARGET_FILE_DIR:SDL2::SDL2>
+				$<TARGET_FILE_DIR:SDL2_mixer::SDL2_mixer>
+		)
+		foreach(_file ${_r_deps})
+			string(TOLOWER ${_file} _file_lower)
+			if(NOT ${_file_lower} MATCHES "c:[\\/]windows[\\/]system32.*")
+				file(INSTALL
+					DESTINATION dist
+					TYPE SHARED_LIBRARY
+					FOLLOW_SYMLINK_CHAIN
+					FILES "${_file}"
+				)
+			endif()
+		endforeach()
+		#message("UNRESOLVED_DEPENDENCIES_VAR: ${_u_deps}")
+		]])
+elseif(UNIX)
+	include(GNUInstallDirs)
+	install(TARGETS atomiks RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+	install(FILES res/atomiks.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+	install(FILES res/atomiks.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/64x64/apps)
+endif()
 
 # source code formatting
 if(NOT ASTYLE_FOUND)

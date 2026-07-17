@@ -4,7 +4,7 @@
  */
 
 #include <time.h>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #include "drv_tim.h"
 #include "drv_inp.h"  /* include self for control */

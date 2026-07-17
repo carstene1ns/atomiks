@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Atomiks
+Comment=assemble a molecule from the atoms
+Icon=atomiks
+Exec=atomiks
+Categories=Game;LogicGame
+Keywords=Puzzle
+Terminal=false
+StartupNotify=false

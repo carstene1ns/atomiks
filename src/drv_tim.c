@@ -3,7 +3,7 @@
  * Copyright (C) Mateusz Viste 2014, 2015
  */
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #include "drv_tim.h" /* include self for control */
 
