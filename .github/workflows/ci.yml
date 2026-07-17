@@ -110,7 +110,7 @@ jobs:
       - name: Build Atomiks
         run: |
           cmake -B build-release . -G Ninja -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_INSTALL_PREFIX=/usr -DAPPIMAGE=ON
+            -DCMAKE_INSTALL_PREFIX=/usr #-DAPPIMAGE=ON
           cmake --build build-release
 
       - name: Install into AppDir
@@ -130,7 +130,10 @@ jobs:
         run: |
           ./linuxdeploy --appdir AppDir \
             --desktop-file AppDir/usr/share/applications/atomiks.desktop \
-            --icon-file AppDir/usr/share/icons/hicolor/64x64/apps/atomiks.png
+            --icon-file AppDir/usr/share/icons/hicolor/64x64/apps/atomiks.png \
+            --library $SDL2_ROOT/lib/lib*so* \
+            --library $SDL2_mixer_ROOT/lib/lib*so* \
+            --library $SDL2_image_ROOT/lib/lib*so*
           ./appimagetool --no-appstream AppDir atomiks-${VERSION}-linux-x86_64.AppImage
 
       - name: Upload artifact
@@ -153,7 +156,18 @@ jobs:
           install: |
             base-devel
           pacboy: |
-            toolchain:p cmake:p ninja:p SDL2:p SDL2_mixer:p SDL2_image:p
+            toolchain:p cmake:p ninja:p
+
+      - uses: libsdl-org/setup-sdl@main
+        id: sdl
+        with:
+          version: 2-latest
+          version-sdl-mixer: 2-latest
+          version-sdl-image: 2-latest
+          build-type: RelWithDebInfo
+          cmake-generator: Ninja
+          cmake-arguments: -DSDL2MIXER_VENDORED=ON -DSDL2MIXER_MP3=OFF -DSDL2MIXER_FLAC=OFF \
+            -DSDL2MIXER_MIDI=OFF -DSDL2MIXER_OPUS=OFF -DSDL2MIXER_WAVPACK=OFF -DSDL2MIXER_VORBIS=OFF
 
       - name: Checkout
         uses: actions/checkout@v7
